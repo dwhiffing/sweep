@@ -1,0 +1,188 @@
+body {
+  margin: 0;
+  position: relative;
+}
+
+button.MuiButtonBase-root {
+  margin: 8px;
+}
+
+.no-select {
+  pointer-events: none;
+  user-select: none;
+}
+
+select {
+  flex: 1;
+  font-size: 14px;
+  text-transform: uppercase;
+  padding: 0 10px;
+}
+
+.message {
+  margin: 0 auto 12px;
+  width: 100%;
+  max-width: 500px;
+  color: white;
+}
+
+.full.container {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  background: #333;
+  height: 100vh;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.tile {
+  position: relative;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.tile:before {
+  content: '';
+  display: block;
+  padding-bottom: 100%;
+}
+
+.tile > div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tile:hover {
+  border: 2px solid black;
+}
+
+.tile.dark {
+  background-color: #666;
+}
+.MuiInputBase-input {
+  color: white !important;
+  margin-bottom: 20px;
+}
+
+.tile .mark,
+.tile .attack {
+  position: absolute;
+  top: calc(50% - min(1.5vw, 8px));
+  left: calc(50% - min(1.5vw, 8px));
+  background-color: #228bec;
+  max-width: 16px;
+  max-height: 16px;
+  width: 3vw;
+  height: 3vw;
+  border-radius: 1.5vw;
+}
+
+.tile:hover .mark {
+  background-color: #228bec;
+}
+
+.tile img {
+  width: 10vw;
+  max-width: 80px;
+}
+
+.tile.selected img {
+  opacity: 1;
+}
+
+.tile .attack {
+  background-color: #ec2222;
+}
+
+.tile img {
+  height: 10vw;
+  max-height: 50px;
+  width: auto;
+}
+
+.tile .mark,
+.tile .attack {
+  opacity: 0;
+}
+
+.tile.marked,
+.full .tile.marked .mark,
+.tile.marked:hover .mark,
+.tile.marked:hover .attack {
+  opacity: 1;
+}
+
+.tile.selected {
+  opacity: 1;
+}
+
+@keyframes shiver {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(-3deg);
+  }
+}
+
+.tile.check img {
+  animation: shiver 150ms step-start infinite;
+}
+
+.full .tile .mark {
+  background-color: #333;
+}
+
+
+.mini .tile:hover {
+  border: 0;
+}
+
+.mini .tile.dark {
+  background-color: #fff;
+}
+
+.mini .tile.muted {
+  opacity: 0.3;
+}
+
+.mini .tile:hover:before {
+  background-color: transparent;
+}
+
+.mini .win-state {
+  color: #03bd0b;
+  font-family: sans-serif;
+  font-weight: 500;
+  font-size: min(5vw, 30px);
+  margin-top: 20;
+  margin-bottom: 25;
+  line-height: 200%;
+  text-transform: uppercase;
+}
+
+.mini .win-state a {
+  margin: 0 8px;
+  color: #f14e6b;
+}
+
+.mini .win-state span:first-of-type {
+  margin-right: 16px;
+}
