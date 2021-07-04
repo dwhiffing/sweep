@@ -90,30 +90,32 @@ export class GridService {
     tile._x = x
     tile._y = y
     tile._key = `${x}:${y}`
-    tile.isMine = this.getIsMine(x, y)
     tile.on('pointerup', () => this.revealTile(tile))
-
-    tile.neighbours = {}
-    tile.mineCount = 0
-    for (let j = -1; j <= 1; j++) {
-      for (let i = -1; i <= 1; i++) {
-        if (this.getIsMine(x + i, y + j)) tile.mineCount++
-        tile.neighbours[`${x + i}-${y + j}`] = {
-          getSprite: () => this.getTile(x + i, y + j),
-        }
-      }
-    }
 
     return tile
   }
 
   revealTile = (sprite) => {
     if (sprite.frame.name !== 9) return
+    const x = sprite._x
+    const y = sprite._y
+    const isMine = this.getIsMine(x, y)
 
-    sprite.setFrame(sprite.isMine ? 10 : sprite.mineCount)
+    sprite.neighbours = {}
+    let mineCount = 0
+    for (let j = -1; j <= 1; j++) {
+      for (let i = -1; i <= 1; i++) {
+        if (this.getIsMine(x + i, y + j)) mineCount++
+        sprite.neighbours[`${x + i}-${y + j}`] = {
+          getSprite: () => this.getTile(x + i, y + j),
+        }
+      }
+    }
+
+    sprite.setFrame(isMine ? 10 : mineCount)
     this.clickedTiles[sprite._key] = { frame: sprite.frame.name }
 
-    if (sprite.mineCount === 0) this.revealTileNeighbours(sprite)
+    if (mineCount === 0) this.revealTileNeighbours(sprite)
   }
 
   revealTileNeighbours = (parentSprite) => {
