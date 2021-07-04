@@ -1,4 +1,7 @@
 import md5 from 'md5'
+const chunkSize = 7
+const tileSize = 32
+const mineRate = 18
 
 export class GridService {
   constructor(scene) {
@@ -9,9 +12,6 @@ export class GridService {
     this.seed = 'seed'
     this.chunks = []
     this.clickedTiles = {}
-    this.chunkSize = 7
-    this.tileSize = 32
-    this.mineRate = 18
     this.update()
   }
 
@@ -22,8 +22,8 @@ export class GridService {
     if (this._x === cX && this._y === cY) return
     this._x = cX
     this._y = cY
-    const drawDist = zoom === 1 ? 2 : 3
 
+    const drawDist = zoom === 1 ? 2 : 3
     for (let x = cX - drawDist; x <= cX + drawDist; x++) {
       for (let y = cY - drawDist; y <= cY + drawDist; y++) {
         this.getChunk(x, y)
@@ -52,21 +52,19 @@ export class GridService {
   }
 
   loadChunk = (chunk) => {
-    if (chunk.isLoaded) return
-    chunk.isLoaded = true
+    if (chunk.tiles.countActive() > 0) return
 
-    for (let i = 0; i < this.chunkSize; i++) {
-      for (let j = 0; j < this.chunkSize; j++) {
-        const _x = i + chunk.x * this.chunkSize
-        const _y = j + chunk.y * this.chunkSize
+    for (let i = 0; i < chunkSize; i++) {
+      for (let j = 0; j < chunkSize; j++) {
+        const _x = i + chunk.x * chunkSize
+        const _y = j + chunk.y * chunkSize
         chunk.tiles.add(this.loadTile(_x, _y))
       }
     }
   }
 
   unloadChunk = (chunk) => {
-    if (!chunk.isLoaded) return
-    chunk.isLoaded = false
+    if (chunk.tiles.countActive() === 0) return
 
     chunk.tiles.clear(true, true)
   }
@@ -76,14 +74,9 @@ export class GridService {
   loadTile = (x, y) => {
     const frame = this.clickedTiles[`${x}:${y}`]?.frame ?? 9
     const width = this.scene.cameras.main.width
-    const offset = width / 2 - (this.tileSize * this.chunkSize) / 2
+    const o = width / 2 - (tileSize * chunkSize) / 2
     const tile = this.scene.add
-      .sprite(
-        x * this.tileSize + offset,
-        y * this.tileSize + offset,
-        'tiles',
-        frame,
-      )
+      .sprite(x * tileSize + o, y * tileSize + o, 'tiles', frame)
       .setOrigin(0)
       .setInteractive()
 
@@ -96,46 +89,49 @@ export class GridService {
   }
 
   revealTile = (sprite) => {
-    if (sprite.frame.name !== 9) return
-    const x = sprite._x
-    const y = sprite._y
-    const isMine = this.getIsMine(x, y)
+    if (sprite?.frame.name !== 9) return
 
-    sprite.neighbours = {}
-    let mineCount = 0
-    for (let j = -1; j <= 1; j++) {
-      for (let i = -1; i <= 1; i++) {
-        if (this.getIsMine(x + i, y + j)) mineCount++
-        sprite.neighbours[`${x + i}-${y + j}`] = {
-          getSprite: () => this.getTile(x + i, y + j),
-        }
-      }
-    }
+    const { _x: x, _y: y } = sprite
+    const frame = this.getIsMine(x, y) ? 10 : this.getMineCount(x, y)
+    sprite.setFrame(frame)
+    this.clickedTiles[sprite._key] = { frame }
 
-    sprite.setFrame(isMine ? 10 : mineCount)
-    this.clickedTiles[sprite._key] = { frame: sprite.frame.name }
-
-    if (mineCount === 0) this.revealTileNeighbours(sprite)
+    if (frame === 0) this.revealTileNeighbours(sprite)
   }
 
   revealTileNeighbours = (parentSprite) => {
     // TODO: this should effect all tiles instead of just loaded chunks
-    Object.values(parentSprite.neighbours).forEach((n) => {
-      const sprite = n.getSprite()
+    N_COORDS.forEach(([i, j]) => {
+      const sprite = this.getTile(parentSprite._x + i, parentSprite._y + j)
       if (sprite?.frame.name === 9) this.revealTile(sprite)
     })
   }
 
   getChunkCoords = (n) =>
-    (this.chunkSize *
-      this.tileSize *
-      Math.round(n / (this.chunkSize * this.tileSize))) /
-    this.chunkSize /
-    this.tileSize
+    (chunkSize * tileSize * Math.round(n / (chunkSize * tileSize))) /
+    chunkSize /
+    tileSize
+
+  getMineCount = (x, y) =>
+    N_COORDS.reduce(
+      (n, [i, j]) => (this.getIsMine(x + i, y + j) ? n + 1 : n),
+      0,
+    )
 
   getIsMine = (x, y) =>
-    integerHash(md5(`${this.seed}-${x}-${y}`)) % this.mineRate === 0
+    integerHash(md5(`${this.seed}-${x}-${y}`)) % mineRate === 0
 }
 
 const integerHash = (string) =>
   string.split('').reduce((n, c) => (n * 31 * c.charCodeAt(0)) % 982451653, 7)
+
+const N_COORDS = [
+  [-1, -1],
+  [0, -1],
+  [1, -1],
+  [-1, 0],
+  [1, 0],
+  [-1, 1],
+  [0, 1],
+  [1, 1],
+]
