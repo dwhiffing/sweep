@@ -7,8 +7,7 @@ export default class extends Phaser.Scene {
   }
 
   init() {
-    this.width = this.cameras.main.width
-    this.height = this.cameras.main.height
+    this.input.mouse.disableContextMenu()
     this.cameraService = new CameraService(this)
     this.gridService = new GridService(this)
   }

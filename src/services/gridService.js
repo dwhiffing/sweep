@@ -66,32 +66,48 @@ export class GridService {
   loadTile = (x, y) => {
     const sx = x * TILE_SIZE + this.tileOffset
     const sy = y * TILE_SIZE + this.tileOffset
-    const frame = this.state[`${x}:${y}`]?.frame ?? 9
+    const frame = this.getTileState(x, y)
     const tile = this.scene.add.sprite(sx, sy, 'tiles', frame).setOrigin(0)
-    tile.setInteractive().on('pointerup', () => this.onClickTile(x, y))
+    tile
+      .setInteractive()
+      .on('pointerup', (pointer) =>
+        this.onClickTile(x, y, pointer.rightButtonReleased()),
+      )
     tile._x = x
     tile._y = y
     return tile
   }
 
-  onClickTile = (x, y) => {
-    this.revealCount = 0
-    this.revealTile(x, y)
+  onClickTile = (x, y, shouldMark) => {
+    if (shouldMark) {
+      this.markTile(x, y)
+    } else {
+      this.revealCount = 0
+      this.revealTile(x, y)
+    }
     this.updateTiles()
   }
 
   updateTiles = () => {
     this.tiles.forEach((sprite) => {
-      const frame = this.state[`${sprite._x}:${sprite._y}`]?.frame
-      if (typeof frame === 'number') sprite.setFrame(frame)
+      sprite.setFrame(this.getTileState(sprite._x, sprite._y))
     })
   }
 
+  markTile = (x, y) => {
+    const tileState = this.getTileState(x, y)
+    if (tileState === 10) return
+
+    const markFrame = tileState === 9 ? 11 : tileState === 11 ? 13 : 9
+    this.setTileState(x, y, markFrame)
+  }
+
   revealTile = (x, y) => {
-    if (this.state[`${x}:${y}`]) return
+    const tileState = this.getTileState(x, y)
+    if (![9, 13].includes(tileState)) return
 
     const frame = this.getIsMine(x, y) ? 10 : this.getMineCount(x, y)
-    this.state[`${x}:${y}`] = { frame }
+    this.setTileState(x, y, frame)
 
     if (frame === 0 && this.revealCount++ < 100000)
       COORDS.forEach(([i, j]) => this.revealTile(x + i, y + j))
@@ -101,4 +117,8 @@ export class GridService {
     COORDS.reduce((n, [i, j]) => (this.getIsMine(x + i, y + j) ? n + 1 : n), 0)
 
   getIsMine = (x, y) => intHash(`${this.seed}-${x}-${y}`) % MINE_RATE === 0
+
+  getTileState = (x, y) => this.state[`${x}:${y}`]?.frame ?? 9
+
+  setTileState = (x, y, frame) => (this.state[`${x}:${y}`] = { frame })
 }
