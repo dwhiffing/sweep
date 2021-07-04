@@ -3,8 +3,8 @@ import * as scenes from './scenes'
 
 var config = {
   type: Phaser.AUTO,
-  width: 320,
-  height: 320,
+  width: 640,
+  height: 640,
   backgroundColor: '#000',
   parent: 'phaser-example',
   scale: {
