@@ -16,10 +16,10 @@ export class CameraService {
     })
     scene.input.keyboard
       .addKey(Q)
-      .on('down', () => camera.zoom < 4 && this.zoom(camera.zoom * 2))
+      .on('down', () => camera.zoom < 2 && this.zoom(camera.zoom * 2))
     scene.input.keyboard
       .addKey(E)
-      .on('down', () => camera.zoom > 0.25 && this.zoom(camera.zoom / 2))
+      .on('down', () => camera.zoom > 0.5 && this.zoom(camera.zoom / 2))
   }
 
   zoom(value) {
