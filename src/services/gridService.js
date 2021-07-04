@@ -1,18 +1,18 @@
-import { Tile } from '../gameObjects/Tile'
-import { getIsMine, chunkSize, drawDist, getChunkCoords } from '../utils'
+import md5 from 'md5'
 
 export class GridService {
   constructor(scene) {
     this.scene = scene
   }
 
-  init() {
+  init = () => {
+    this.seed = 'seed'
     this.chunks = []
     this.clickedTiles = {}
     this.update()
   }
 
-  update() {
+  update = () => {
     const { scrollX, scrollY, centerX, centerY } = this.scene.cameras.main
     // TODO: should make this faster by only updating chunks when moving camera a certain distance
     const tX = scrollX + centerX
@@ -39,46 +39,7 @@ export class GridService {
     this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
   }
 
-  loadChunk(chunk) {
-    if (chunk.isLoaded) return
-    chunk.isLoaded = true
-
-    for (let i = 0; i < chunkSize; i++) {
-      for (let j = 0; j < chunkSize; j++) {
-        // const existingTileData = this.scene.clickedTiles[this._key]
-        // const frame = existingTileData?.frame
-
-        // this.neighbours = {}
-        // for (var y = -1; y <= 1; y++) {
-        //   for (var x = -1; x <= 1; x++) {
-        //     const key = `${this._x + x}-${this._y + y}`
-        //     this.neighbours[key] = {
-        //       getSprite: () => this.tiles.find((t) => t._key === key),
-        //       isMine: getIsMine(this._x + x, this._y + y),
-        //     }
-        //   }
-        // }
-
-        // this.mineCount = Object.values(this.neighbours).filter(
-        //   (t) => !!t.isMine,
-        // ).length
-        // this.isMine = getIsMine(this._x, this._y)
-
-        chunk.tiles.add(
-          new Tile(this.scene, i, j, chunk.x, chunk.y, this.revealTile),
-        )
-      }
-    }
-  }
-
-  unloadChunk(chunk) {
-    if (!chunk.isLoaded) return
-    chunk.isLoaded = false
-
-    chunk.tiles.clear(true, true)
-  }
-
-  getChunk(x, y) {
+  getChunk = (x, y) => {
     let chunk = this.chunks.find((c) => c.x === x && c.y === y)
     if (!chunk) {
       const tiles = this.scene.add.group()
@@ -88,18 +49,66 @@ export class GridService {
     return chunk
   }
 
+  loadChunk = (chunk) => {
+    if (chunk.isLoaded) return
+    chunk.isLoaded = true
+
+    for (let i = 0; i < chunkSize; i++) {
+      for (let j = 0; j < chunkSize; j++) {
+        const _x = i + chunk.x * chunkSize
+        const _y = j + chunk.y * chunkSize
+        const tile = this.loadTile(_x, _y)
+        chunk.tiles.add(tile)
+      }
+    }
+  }
+
+  unloadChunk = (chunk) => {
+    if (!chunk.isLoaded) return
+    chunk.isLoaded = false
+
+    chunk.tiles.clear(true, true)
+  }
+
+  getTile = (x, y) => this.tiles.find((t) => t._key === `${x}:${y}`)
+
+  loadTile = (x, y) => {
+    const frame = this.clickedTiles[`${x}:${y}`]?.frame ?? 9
+    const tile = this.scene.add
+      .sprite(x * tileSize, y * tileSize, 'tiles', frame)
+      .setOrigin(0)
+      .setScale(tileSize / 32)
+      .setInteractive()
+
+    tile._x = x
+    tile._y = y
+    tile._key = `${x}:${y}`
+    tile.isMine = this.getIsMine(x, y)
+    tile.on('pointerup', () => this.revealTile(tile))
+
+    tile.neighbours = {}
+    tile.mineCount = 0
+    for (let j = -1; j <= 1; j++) {
+      for (let i = -1; i <= 1; i++) {
+        if (this.getIsMine(x + i, y + j)) tile.mineCount++
+        tile.neighbours[`${x + i}-${y + j}`] = {
+          getSprite: () => this.getTile(x + i, y + j),
+        }
+      }
+    }
+
+    return tile
+  }
+
   revealTile = (sprite) => {
     if (sprite.frame.name !== 9) return
-
     sprite.setFrame(sprite.isMine ? 10 : sprite.mineCount)
 
     if (sprite.mineCount === 0) {
       this.revealTileNeighbours(sprite)
     }
 
-    this.clickedTiles[sprite._key] = {
-      frame: sprite.frame.name,
-    }
+    this.clickedTiles[sprite._key] = { frame: sprite.frame.name }
   }
 
   revealTileNeighbours = (parentSprite) => {
@@ -110,4 +119,20 @@ export class GridService {
       if (sprite.mineCount === 0) this.revealTileNeighbours(sprite)
     })
   }
+
+  getIsMine = (x, y) =>
+    integerHash(md5(`${this.seed}-${x}-${y}`)) % mineRate === 0
 }
+
+const chunkSize = 6
+const tileSize = 32
+const drawDist = 2
+const mineRate = 18
+
+const getChunkCoords = (n) =>
+  (chunkSize * tileSize * Math.round(n / (chunkSize * tileSize))) /
+  chunkSize /
+  tileSize
+
+const integerHash = (string) =>
+  string.split('').reduce((n, c) => (n * 31 * c.charCodeAt(0)) % 982451653, 7)

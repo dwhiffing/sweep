@@ -5,7 +5,7 @@ var config = {
   type: Phaser.AUTO,
   width: 320,
   height: 320,
-  backgroundColor: '#1d332f',
+  backgroundColor: '#000',
   parent: 'phaser-example',
   scale: {
     // mode: Phaser.Scale.RESIZE,

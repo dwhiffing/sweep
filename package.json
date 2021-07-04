@@ -1,5 +1,5 @@
 {
-  "name": "grocer",
+  "name": "infinisweeper",
   "version": "0.0.1",
   "description": "A game",
   "main": "src/index.js",
@@ -28,7 +28,6 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "inkjs": "^1.11.0",
     "phaser": "^3.55.2",
     "colyseus.js": "^0.14.1",
     "faker": "^5.1.0",

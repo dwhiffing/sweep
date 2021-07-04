@@ -2,6 +2,7 @@ export class CameraService {
   constructor(scene) {
     this.scene = scene
     this.scene.cameras.main.setZoom(1)
+
     const { W, A, S, D, Q, E } = Phaser.Input.Keyboard.KeyCodes
     this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl({
       camera: scene.cameras.main,
