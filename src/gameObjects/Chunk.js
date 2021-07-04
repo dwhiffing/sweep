@@ -1,4 +1,4 @@
-import { chunkSize, fullSize, tileSize } from '../scenes/Game'
+import { chunkSize, tileSize } from '../utils'
 import { Tile } from './Tile'
 
 export class Chunk {
@@ -8,20 +8,22 @@ export class Chunk {
     this.y = y
     this.tiles = this.scene.add.group()
   }
+
   load() {
     if (this.isLoaded) return
     this.isLoaded = true
+
     for (let i = 0; i < chunkSize; i++) {
       for (let j = 0; j < chunkSize; j++) {
-        const x = this.x * fullSize + i * tileSize
-        const y = this.y * fullSize + j * tileSize
-        this.tiles.add(new Tile(this.scene, x, y))
+        this.tiles.add(new Tile(this.scene, i, j, this.x, this.y))
       }
     }
   }
+
   unload() {
     if (!this.isLoaded) return
-    this.tiles.clear(true, true)
     this.isLoaded = false
+
+    this.tiles.clear(true, true)
   }
 }

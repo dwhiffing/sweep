@@ -1,4 +1,12 @@
 import md5 from 'md5'
+export const chunkSize = 6
+export const tileSize = 32
+export const drawDist = 2
+export const mineRate = 18
+
+const fullSize = chunkSize * tileSize
+export const getChunkCoords = (x) =>
+  (fullSize * Math.round(x / fullSize)) / chunkSize / tileSize
 
 function integerHash(string) {
   return (string + '').split('').reduce(function (memo, item) {
@@ -6,4 +14,5 @@ function integerHash(string) {
   }, 7)
 }
 
-export const getIsMine = (x, y) => integerHash(md5(`seed-${x}-${y}`)) % 4 === 0
+export const getIsMine = (x, y) =>
+  integerHash(md5(`seed-${x}-${y}`)) % mineRate === 0

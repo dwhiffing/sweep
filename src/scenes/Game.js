@@ -1,8 +1,5 @@
 import { Chunk } from '../gameObjects/Chunk'
-export const chunkSize = 4
-export const tileSize = 32
-export const fullSize = chunkSize * tileSize
-export const drawDist = 2
+import { drawDist, getChunkCoords } from '../utils'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -49,17 +46,17 @@ export default class extends Phaser.Scene {
     return chunk
   }
 
-  getChunkCoords = (x) =>
-    (fullSize * Math.round(x / fullSize)) / chunkSize / tileSize
-
   updateChunks = () => {
     const { scrollX, scrollY, centerX, centerY } = this.cameras.main
-    if (this._x === scrollX + centerX && this._y === scrollY + centerY) return
-    this._x = scrollX + centerX
-    this._y = scrollY + centerY
+    // TODO: should make this faster by only updating chunks when moving camera a certain distance
+    const tX = scrollX + centerX
+    const tY = scrollY + centerY
+    if (this._x === tX && this._y === tY) return
+    this._x = tX
+    this._y = tY
 
-    const cX = this.getChunkCoords(this._x)
-    const cY = this.getChunkCoords(this._y)
+    const cX = getChunkCoords(this._x)
+    const cY = getChunkCoords(this._y)
 
     for (let x = cX - drawDist; x < cX + drawDist; x++) {
       for (let y = cY - drawDist; y < cY + drawDist; y++) {
@@ -73,5 +70,6 @@ export default class extends Phaser.Scene {
       if (isVisible) chunk.load()
       else chunk.unload()
     })
+    this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
   }
 }
