@@ -1,5 +1,5 @@
-import { Chunk } from '../gameObjects/Chunk'
-import { drawDist, getChunkCoords } from '../utils'
+import { CameraService } from '../services/cameraService'
+import { GridService } from '../services/gridService'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -9,67 +9,16 @@ export default class extends Phaser.Scene {
   init() {
     this.width = this.cameras.main.width
     this.height = this.cameras.main.height
+    this.cameraService = new CameraService(this)
+    this.gridService = new GridService(this)
   }
 
   create() {
-    this.chunks = []
-    this.clickedTiles = {}
-    this.updateChunks()
-
-    this.cameras.main.setZoom(1)
-    const { W, A, S, D, Q, E } = Phaser.Input.Keyboard.KeyCodes
-    this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl({
-      camera: this.cameras.main,
-      left: this.input.keyboard.addKey(A),
-      right: this.input.keyboard.addKey(D),
-      up: this.input.keyboard.addKey(W),
-      down: this.input.keyboard.addKey(S),
-      zoomIn: this.input.keyboard.addKey(Q),
-      zoomOut: this.input.keyboard.addKey(E),
-      acceleration: 0.1,
-      drag: 0.005,
-      maxSpeed: 0.3,
-    })
+    this.gridService.init()
   }
 
   update(time, delta) {
-    this.controls.update(delta)
-    this.updateChunks()
-  }
-
-  getChunk(x, y) {
-    let chunk = this.chunks.find((c) => c.x === x && c.y === y)
-    if (!chunk) {
-      chunk = new Chunk(this, x, y)
-      this.chunks.push(chunk)
-    }
-    return chunk
-  }
-
-  updateChunks = () => {
-    const { scrollX, scrollY, centerX, centerY } = this.cameras.main
-    // TODO: should make this faster by only updating chunks when moving camera a certain distance
-    const tX = scrollX + centerX
-    const tY = scrollY + centerY
-    if (this._x === tX && this._y === tY) return
-    this._x = tX
-    this._y = tY
-
-    const cX = getChunkCoords(this._x)
-    const cY = getChunkCoords(this._y)
-
-    for (let x = cX - drawDist; x < cX + drawDist; x++) {
-      for (let y = cY - drawDist; y < cY + drawDist; y++) {
-        this.getChunk(x, y)
-      }
-    }
-
-    this.chunks.forEach((chunk) => {
-      const isVisible =
-        Math.abs(cX - chunk.x) <= drawDist && Math.abs(cY - chunk.y) <= drawDist
-      if (isVisible) chunk.load()
-      else chunk.unload()
-    })
-    this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
+    this.cameraService.update(delta)
+    this.gridService.update()
   }
 }
