@@ -14,6 +14,7 @@
   "homepage": "https://github.com/dwhiffing/grocer",
   "devDependencies": {
     "@babel/core": "^7.7.2",
+    "@babel/plugin-transform-runtime": "^7.14.5",
     "@babel/preset-env": "^7.7.1",
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^3.0.0",
@@ -28,10 +29,13 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "phaser": "^3.55.2",
+    "@babel/preset-react": "^7.14.5",
+    "@babel/runtime": "^7.14.6",
     "colyseus.js": "^0.14.1",
     "faker": "^5.1.0",
     "lodash": "^4.17.20",
-    "md5": "^2.3.0"
+    "md5": "^2.3.0",
+    "phaser": "^3.55.2",
+    "regenerator": "^0.14.7"
   }
 }
