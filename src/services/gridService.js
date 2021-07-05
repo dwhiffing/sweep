@@ -91,6 +91,7 @@ export class GridService {
     if (![9, 13].includes(this.getTile(x, y))) return
 
     const frame = this.getIsMine(x, y) ? 10 : this.getMineCount(x, y)
+    // TODO: repeat tile revealing should be done on server
     this.setTile(x, y, frame)
 
     if (frame === 0 && this.revealCount++ < 10000)
@@ -106,7 +107,7 @@ export class GridService {
 
   setTile = (x, y, frame) => {
     this.state[`${x}:${y}`] = frame
-    window?.room.send('Move', { x, y, frame })
+    window.room?.send('Move', { x, y, frame })
   }
 }
 

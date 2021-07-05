@@ -1,6 +1,5 @@
 import { CameraService } from '../services/cameraService'
 import { GridService } from '../services/gridService'
-import { UIService } from '../services/uiService'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -11,12 +10,10 @@ export default class extends Phaser.Scene {
     this.input.mouse.disableContextMenu()
     this.cameraService = new CameraService(this)
     this.gridService = new GridService(this)
-    this.uiService = new UIService(this)
   }
 
   create() {
     this.gridService.init()
-    this.uiService.init()
 
     if (window.room) {
       room.onStateChange((state) => {

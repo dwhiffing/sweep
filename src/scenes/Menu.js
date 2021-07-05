@@ -9,12 +9,16 @@ export default class extends Phaser.Scene {
     let roomButtons = []
     const name = getStorage('name') || 'name'
 
+    const launchGame = () => {
+      this.scene.start('Game')
+      this.scene.launch('UI')
+    }
     const enterRoom = (room) => {
       if (!room) return
       setStorage('name', name)
       setStorage(room.id, room.sessionId)
       window.room = room
-      this.scene.start('Game')
+      launchGame()
     }
 
     const createRoom = async () => {
@@ -54,10 +58,8 @@ export default class extends Phaser.Scene {
     update()
     this.time.addEvent({ delay: 1000, callback: update, loop: true })
 
-    const localGame = () => this.scene.start('Game')
-
     const { width, height } = this.cameras.main
-    this.addButton(width / 2 - 64, height / 2, 11, localGame)
+    this.addButton(width / 2 - 64, height / 2, 11, launchGame)
     this.addButton(width / 2, height / 2, 13, createRoom)
   }
 
