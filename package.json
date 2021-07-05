@@ -6,6 +6,7 @@
   "scripts": {
     "build": "webpack --config webpack.prod.js; cp -r assets dist/; cp favicon.png dist/; cp manifest.json dist/",
     "start": "webpack-dev-server --config webpack.base.js --open",
+    "start-server": "npm start --prefix ./server",
     "deploy": "gh-pages -d dist"
   },
   "author": "Daniel Whiffing <danielwhiffing@gmail.com> (http://www.infinite-ramble.com)",
