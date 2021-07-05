@@ -4,7 +4,7 @@ import { Dispatcher } from '@colyseus/command'
 import * as Commands from '../commands'
 
 export class MinesweeperRoom extends Room<RoomState> {
-  maxClients = 2
+  maxClients = 10
   dispatcher = new Dispatcher(this)
 
   onCreate({ roomName = 'MinesweeperRoom' } = {}) {
@@ -23,7 +23,7 @@ export class MinesweeperRoom extends Room<RoomState> {
   }
 
   onAuth() {
-    if (this.state.players.length >= 2)
+    if (this.state.players.length >= 10)
       throw new ServerError(400, 'Too many players')
 
     return true
