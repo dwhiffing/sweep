@@ -2,7 +2,8 @@ import md5 from 'md5'
 
 const CHUNK_SIZE = 20
 const TILE_SIZE = 32
-const MINE_RATE = 8
+const MINE_RATE = 20
+// const MINE_RATE = 8
 
 export class GridService {
   constructor(scene) {
@@ -94,8 +95,12 @@ export class GridService {
     // TODO: repeat tile revealing should be done on server
     this.setTile(x, y, frame)
 
-    if (frame === 0 && this.revealCount++ < 10000)
-      NCOORDS.forEach(([i, j]) => this.revealTile(x + i, y + j))
+    if (frame === 0) {
+      this.floodFill(x, y)
+    }
+
+    // if (frame === 0 && this.revealCount++ < 1000)
+    //   NCOORDS.forEach(([i, j]) => this.revealTile(x + i, y + j))
   }
 
   getMineCount = (x, y) =>
@@ -109,6 +114,68 @@ export class GridService {
     this.state[`${x}:${y}`] = frame
     window.room?.send('Move', { x, y, frame })
   }
+
+  getFrame = (x, y) => (this.getIsMine(x, y) ? 10 : this.getMineCount(x, y))
+
+  revealNeighbours = (x, y) =>
+    COORDS.forEach(([i, j]) =>
+      this.setTile(x + i, y + j, this.getFrame(x + i, y + j)),
+    )
+
+  floodFill = (x, y) => {
+    let boundLeft = x - 30,
+      boundTop = y - 30,
+      boundRight = x + 30,
+      boundBottom = y + 30,
+      stack = [[x, y]],
+      reachLeft,
+      reachRight
+
+    while (stack.length) {
+      let [x, y] = stack.pop()
+
+      while (y >= boundTop && this.getFrame(x, y) === 0) {
+        y -= 1
+      }
+
+      y += 1
+
+      reachLeft = false
+      reachRight = false
+
+      while (y <= boundBottom && this.getFrame(x, y) === 0) {
+        this.revealNeighbours(x, y)
+
+        y += 1
+
+        if (x > boundLeft) {
+          if (this.getTile(x - 2, y) === 9 && this.getFrame(x - 2, y) === 0) {
+            if (!reachLeft) {
+              stack.push([x - 2, y])
+              reachLeft = true
+            }
+          } else if (reachLeft) {
+            reachLeft = false
+          }
+        }
+
+        if (x < boundRight) {
+          if (this.getTile(x + 2, y) === 9 && this.getFrame(x + 2, y) === 0) {
+            if (!reachRight) {
+              stack.push([x + 2, y])
+              reachRight = true
+            }
+          } else if (reachRight) {
+            reachRight = false
+          }
+        }
+      }
+    }
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 const intHash = (str) =>
