@@ -8,6 +8,7 @@ export class UIService {
       .image(0, 0, 'tiles', 12)
       .setInteractive()
       .setOrigin(0)
+      .setScrollFactor(0)
       .on('pointerup', () => {
         if (window.room) {
           window.room?.leave()

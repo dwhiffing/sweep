@@ -46,7 +46,7 @@ export default class extends Phaser.Scene {
 
       roomButtons.forEach((b) => b.destroy())
       roomButtons = rooms.map((room, i) =>
-        this.addButton(width / 2 + 64, height / 2 - i * 32, 11, () =>
+        this.addButton(width / 2 + 64, height / 2 - i * 32, i + 1, () =>
           joinRoom(room.roomId),
         ),
       )

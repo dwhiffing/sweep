@@ -17,6 +17,13 @@ export class GridService {
     this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
   }
 
+  sync = (state) => {
+    this.state = state
+    this.tiles.forEach((sprite) =>
+      sprite.setFrame(this.getTile(sprite._x, sprite._y)),
+    )
+  }
+
   loadChunks = () =>
     COORDS.map(([x, y]) => {
       const tiles = this.scene.add.group()
@@ -77,14 +84,14 @@ export class GridService {
     if (tileState === 10) return
 
     const markFrame = tileState === 9 ? 11 : tileState === 11 ? 13 : 9
-    this.setTileState(x, y, markFrame)
+    this.setTile(x, y, markFrame)
   }
 
   revealTile = (x, y) => {
     if (![9, 13].includes(this.getTile(x, y))) return
 
     const frame = this.getIsMine(x, y) ? 10 : this.getMineCount(x, y)
-    this.setTileState(x, y, frame)
+    this.setTile(x, y, frame)
 
     if (frame === 0 && this.revealCount++ < 10000)
       NCOORDS.forEach(([i, j]) => this.revealTile(x + i, y + j))
@@ -95,9 +102,12 @@ export class GridService {
 
   getIsMine = (x, y) => intHash(`${this.seed}-${x}-${y}`) % MINE_RATE === 0
 
-  getTile = (x, y) => this.state[`${x}:${y}`]?.frame ?? 9
+  getTile = (x, y) => this.state[`${x}:${y}`] ?? 9
 
-  setTileState = (x, y, frame) => (this.state[`${x}:${y}`] = { frame })
+  setTile = (x, y, frame) => {
+    this.state[`${x}:${y}`] = frame
+    window?.room.send('Move', { x, y, frame })
+  }
 }
 
 const intHash = (str) =>

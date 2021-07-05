@@ -8,19 +8,6 @@ export default class extends Phaser.Scene {
   }
 
   init() {
-    if (window.room) {
-      let state = window.room.state.toJSON()
-      room.onStateChange((state) => {
-        state = state.toJSON()
-        console.log(state)
-      })
-
-      room.onLeave((code) => {
-        if (code === 1000) localStorage.removeItem(room.id)
-        window.room = null
-      })
-    }
-
     this.input.mouse.disableContextMenu()
     this.cameraService = new CameraService(this)
     this.gridService = new GridService(this)
@@ -30,6 +17,18 @@ export default class extends Phaser.Scene {
   create() {
     this.gridService.init()
     this.uiService.init()
+
+    if (window.room) {
+      room.onStateChange((state) => {
+        this.gridService.sync(state.toJSON().tiles)
+      })
+
+      this.gridService.sync(room.state.toJSON().tiles)
+      room.onLeave((code) => {
+        if (code === 1000) localStorage.removeItem(room.id)
+        window.room = null
+      })
+    }
   }
 
   update(time, delta) {

@@ -14,7 +14,6 @@ export class MinesweeperRoom extends Room<RoomState> {
     this.onMessage('*', (client, action, _data = {}) => {
       const Command = Commands[action + 'Command']
       if (!Command) return
-
       this.dispatcher.dispatch(new Command(), {
         ..._data,
         broadcast: this.broadcast.bind(this),

@@ -1,11 +1,11 @@
-import { Command } from "@colyseus/command"
-import { RoomState } from "../schema"
+import { Command } from '@colyseus/command'
+import { RoomState } from '../schema'
 
-export class MoveCommand extends Command<RoomState, { from: any, to: any }> {
-  validate({ from, to }) {
-    return true
-  }
-  
-  execute({ from, to }) {
+export class MoveCommand extends Command<
+  RoomState,
+  { x: any; y: any; frame: any }
+> {
+  execute({ x, y, frame }) {
+    this.state.tiles.set(`${x}:${y}`, frame)
   }
 }
