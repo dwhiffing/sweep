@@ -36,9 +36,22 @@ export class GridService {
           tile._cY = y
           tile
             .setInteractive()
-            .on('pointerup', (p) =>
-              this.onClickTile(tile, p.rightButtonReleased()),
-            )
+            .on('pointerover', (p) => {
+              if (!this.getIsRevealable(tile._x, tile._y)) return
+              if (p.leftButtonDown()) tile.setFrame(0)
+            })
+            .on('pointerdown', (p) => {
+              if (!this.getIsRevealable(tile._x, tile._y)) return
+              tile.setFrame(0)
+            })
+            .on('pointerout', (p) => {
+              if (!this.getIsRevealable(tile._x, tile._y)) return
+              if (p.leftButtonDown()) tile.setFrame(9)
+            })
+            .on('pointerup', (p) => {
+              if (!this.getIsRevealable(tile._x, tile._y)) return
+              this.onClickTile(tile, p.rightButtonReleased())
+            })
         }
       }
       return { x, y, tiles }
@@ -67,8 +80,6 @@ export class GridService {
   }
 
   onClickTile = (tile, shouldMark) => {
-    this.revealCount = 0
-
     if (shouldMark) {
       this.markTile(tile._x, tile._y)
     } else {
@@ -81,16 +92,11 @@ export class GridService {
   }
 
   markTile = (x, y) => {
-    const tileState = this.getTileState(x, y)
-    if (tileState === 10) return
-
     const markFrame = tileState === 9 ? 11 : tileState === 11 ? 13 : 9
     this.setTileState(x, y, markFrame)
   }
 
   revealTile = (x, y) => {
-    if (![9, 13].includes(this.getTileState(x, y))) return
-
     const frame = this.getIsMine(x, y) ? 10 : this.getMineCount(x, y)
     this.setTileState(x, y, frame)
     if (frame === 0) {
@@ -131,6 +137,8 @@ export class GridService {
 
   getMineCount = (x, y) =>
     NCOORDS.reduce((n, [i, j]) => (this.getIsMine(x + i, y + j) ? n + 1 : n), 0)
+
+  getIsRevealable = (x, y) => [9, 13].includes(this.getTileState(x, y))
 
   getIsMine = (x, y) => intHash(`${this.seed}-${x}-${y}`) % MINE_RATE === 0
 
