@@ -1,5 +1,8 @@
-import { CHUNK_SIZE, TILE_SIZE, MINE_RATE, COORDS } from '../constants'
-import { intHash, getChunkCoords, isWithinDistance } from '../utils'
+import md5 from 'md5'
+
+const CHUNK_SIZE = 20
+const TILE_SIZE = 32
+const MINE_RATE = 8
 
 export class GridService {
   constructor(scene) {
@@ -8,94 +11,69 @@ export class GridService {
 
   init = () => {
     this.seed = 'seed'
-    this.chunks = []
     this.state = {}
-    this.last = {}
-    this.tileOffset =
-      this.scene.cameras.main.width / 2 - (TILE_SIZE * CHUNK_SIZE) / 2
-    this.update()
-  }
-
-  update = (force) => {
-    const { scrollX, scrollY, zoom } = this.scene.cameras.main
-    const coords = getChunkCoords(scrollX, scrollY)
-    if (!force && this.last.x === coords.x && this.last.y === coords.y) return
-    this.last = coords
-
-    const dist = Math.max(1, Math.round(1 / zoom + 1 / zoom / 2))
-    for (let x = coords.x - dist; x <= coords.x + dist; x++) {
-      for (let y = coords.y - dist; y <= coords.y + dist; y++) {
-        this.getChunk(x, y)
-      }
-    }
-
-    this.chunks.forEach((chunk) => {
-      isWithinDistance(coords, chunk, dist)
-        ? this.loadChunk(chunk)
-        : this.unloadChunk(chunk)
-    })
+    this.lastCoords = {}
+    this.chunks = this.loadChunks()
     this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
   }
 
-  getChunk = (x, y) => {
-    let chunk = this.chunks.find((c) => c.x === x && c.y === y)
-    if (!chunk) {
-      chunk = { x, y, tiles: this.scene.add.group() }
-      this.chunks.push(chunk)
-    }
-    return chunk
-  }
-
-  loadChunk = (chunk) => {
-    if (chunk.tiles.countActive() > 0) return
-
-    for (let i = 0; i < CHUNK_SIZE; i++) {
-      for (let j = 0; j < CHUNK_SIZE; j++) {
-        const _x = i + chunk.x * CHUNK_SIZE
-        const _y = j + chunk.y * CHUNK_SIZE
-        chunk.tiles.add(this.loadTile(_x, _y))
+  loadChunks = () =>
+    COORDS.map(([x, y]) => {
+      const tiles = this.scene.add.group()
+      for (let x = 0; x < CHUNK_SIZE; x++) {
+        for (let y = 0; y < CHUNK_SIZE; y++) {
+          const tile = this.scene.add.sprite(0, 0, 'tiles').setOrigin(0)
+          tiles.add(tile)
+          tile._cX = x
+          tile._cY = y
+          tile
+            .setInteractive()
+            .on('pointerup', (p) =>
+              this.onClickTile(tile, p.rightButtonReleased()),
+            )
+        }
       }
-    }
-  }
+      return { x, y, tiles }
+    })
 
-  unloadChunk = (chunk) => {
-    if (chunk.tiles.countActive() === 0) return
-    chunk.tiles.clear(true, true)
-  }
+  update = () => {
+    const { scrollX, scrollY } = this.scene.cameras.main
+    const coords = getChunkCoords(scrollX, scrollY)
+    if (this.lastCoords.x === coords.x && this.lastCoords.y === coords.y) return
+    this.lastCoords = coords
 
-  loadTile = (x, y) => {
-    const sx = x * TILE_SIZE + this.tileOffset
-    const sy = y * TILE_SIZE + this.tileOffset
-    const frame = this.getTileState(x, y)
-    const tile = this.scene.add.sprite(sx, sy, 'tiles', frame).setOrigin(0)
-    tile
-      .setInteractive()
-      .on('pointerup', (pointer) =>
-        this.onClickTile(x, y, pointer.rightButtonReleased()),
-      )
-    tile._x = x
-    tile._y = y
-    return tile
-  }
+    this.chunks.forEach((chunk, i) => {
+      chunk.x = COORDS[i][0] + coords.x
+      chunk.y = COORDS[i][1] + coords.y
 
-  onClickTile = (x, y, shouldMark) => {
-    if (shouldMark) {
-      this.markTile(x, y)
-    } else {
-      this.revealCount = 0
-      this.revealTile(x, y)
-    }
-    this.updateTiles()
-  }
-
-  updateTiles = () => {
-    this.tiles.forEach((sprite) => {
-      sprite.setFrame(this.getTileState(sprite._x, sprite._y))
+      const { width } = this.scene.cameras.main
+      const offset = width / 2 - (TILE_SIZE * CHUNK_SIZE) / 2
+      chunk.tiles.getChildren().forEach((tile) => {
+        tile._x = tile._cX + chunk.x * CHUNK_SIZE
+        tile._y = tile._cY + chunk.y * CHUNK_SIZE
+        tile.x = tile._x * TILE_SIZE + offset
+        tile.y = tile._y * TILE_SIZE + offset
+        tile.setFrame(this.getTile(tile._x, tile._y))
+      })
     })
   }
 
+  onClickTile = (tile, shouldMark) => {
+    this.revealCount = 0
+
+    if (shouldMark) {
+      this.markTile(tile._x, tile._y)
+    } else {
+      this.revealTile(tile._x, tile._y)
+    }
+
+    this.tiles.forEach((sprite) =>
+      sprite.setFrame(this.getTile(sprite._x, sprite._y)),
+    )
+  }
+
   markTile = (x, y) => {
-    const tileState = this.getTileState(x, y)
+    const tileState = this.getTile(x, y)
     if (tileState === 10) return
 
     const markFrame = tileState === 9 ? 11 : tileState === 11 ? 13 : 9
@@ -103,22 +81,37 @@ export class GridService {
   }
 
   revealTile = (x, y) => {
-    const tileState = this.getTileState(x, y)
-    if (![9, 13].includes(tileState)) return
+    if (![9, 13].includes(this.getTile(x, y))) return
 
     const frame = this.getIsMine(x, y) ? 10 : this.getMineCount(x, y)
     this.setTileState(x, y, frame)
 
-    if (frame === 0 && this.revealCount++ < 100000)
-      COORDS.forEach(([i, j]) => this.revealTile(x + i, y + j))
+    if (frame === 0 && this.revealCount++ < 10000)
+      NCOORDS.forEach(([i, j]) => this.revealTile(x + i, y + j))
   }
 
   getMineCount = (x, y) =>
-    COORDS.reduce((n, [i, j]) => (this.getIsMine(x + i, y + j) ? n + 1 : n), 0)
+    NCOORDS.reduce((n, [i, j]) => (this.getIsMine(x + i, y + j) ? n + 1 : n), 0)
 
   getIsMine = (x, y) => intHash(`${this.seed}-${x}-${y}`) % MINE_RATE === 0
 
-  getTileState = (x, y) => this.state[`${x}:${y}`]?.frame ?? 9
+  getTile = (x, y) => this.state[`${x}:${y}`]?.frame ?? 9
 
   setTileState = (x, y, frame) => (this.state[`${x}:${y}`] = { frame })
 }
+
+const intHash = (str) =>
+  md5(str)
+    .split('')
+    .reduce((n, c) => (n * 31 * c.charCodeAt(0)) % 982451653, 7)
+
+const getChunkCoords = (x, y) => ({ x: getChunkCoord(x), y: getChunkCoord(y) })
+
+const getChunkCoord = (n) =>
+  (CHUNK_SIZE * TILE_SIZE * Math.round(n / (CHUNK_SIZE * TILE_SIZE))) /
+  CHUNK_SIZE /
+  TILE_SIZE
+
+// prettier-ignore
+const NCOORDS = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]
+const COORDS = [...NCOORDS, [0, 0]]

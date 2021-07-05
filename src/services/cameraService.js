@@ -24,7 +24,6 @@ export class CameraService {
 
   zoom(value) {
     this.scene.cameras.main.setZoom(value)
-    this.scene.gridService.update(true)
   }
 
   update(delta) {
