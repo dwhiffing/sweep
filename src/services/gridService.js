@@ -2,8 +2,8 @@ import md5 from 'md5'
 
 const CHUNK_SIZE = 20
 const TILE_SIZE = 32
-const MINE_RATE = 20
-// const MINE_RATE = 8
+const FLOOD_DIST = 20
+const MINE_RATE = 8
 
 export class GridService {
   constructor(scene) {
@@ -21,7 +21,7 @@ export class GridService {
   sync = (state) => {
     this.state = state
     this.tiles.forEach((sprite) =>
-      sprite.setFrame(this.getTile(sprite._x, sprite._y)),
+      sprite.setFrame(this.getTileState(sprite._x, sprite._y)),
     )
   }
 
@@ -61,7 +61,7 @@ export class GridService {
         tile._y = tile._cY + chunk.y * CHUNK_SIZE
         tile.x = tile._x * TILE_SIZE + offset
         tile.y = tile._y * TILE_SIZE + offset
-        tile.setFrame(this.getTile(tile._x, tile._y))
+        tile.setFrame(this.getTileState(tile._x, tile._y))
       })
     })
   }
@@ -76,106 +76,72 @@ export class GridService {
     }
 
     this.tiles.forEach((sprite) =>
-      sprite.setFrame(this.getTile(sprite._x, sprite._y)),
+      sprite.setFrame(this.getTileState(sprite._x, sprite._y)),
     )
   }
 
   markTile = (x, y) => {
-    const tileState = this.getTile(x, y)
+    const tileState = this.getTileState(x, y)
     if (tileState === 10) return
 
     const markFrame = tileState === 9 ? 11 : tileState === 11 ? 13 : 9
-    this.setTile(x, y, markFrame)
+    this.setTileState(x, y, markFrame)
   }
 
   revealTile = (x, y) => {
-    if (![9, 13].includes(this.getTile(x, y))) return
+    if (![9, 13].includes(this.getTileState(x, y))) return
 
     const frame = this.getIsMine(x, y) ? 10 : this.getMineCount(x, y)
-    // TODO: repeat tile revealing should be done on server
-    this.setTile(x, y, frame)
-
+    this.setTileState(x, y, frame)
     if (frame === 0) {
+      // TODO: flood fill should be done on server
       this.floodFill(x, y)
     }
-
-    // if (frame === 0 && this.revealCount++ < 1000)
-    //   NCOORDS.forEach(([i, j]) => this.revealTile(x + i, y + j))
   }
+
+  floodFill = (_x, _y) => {
+    let stack = [[_x, _y]]
+
+    while (stack.length) {
+      let [x, y] = stack.pop()
+
+      while (y >= _y - FLOOD_DIST && this.hasHiddenAdj(x, y)) {
+        y -= 1
+      }
+
+      y += 1
+
+      while (y <= _y + FLOOD_DIST && this.hasHiddenAdj(x, y)) {
+        this.revealAdj(x, y)
+        if (x > _x - FLOOD_DIST) stack.push([x - 1, y])
+        if (x < _x + FLOOD_DIST) stack.push([x + 1, y])
+        y += 1
+      }
+    }
+  }
+
+  hasHiddenAdj = (x, y) =>
+    this.getFrame(x, y) === 0 &&
+    NCOORDS.some(([i, j]) => [9, 13].includes(this.getTileState(x + i, y + j)))
+
+  revealAdj = (x, y) =>
+    COORDS.forEach(([i, j]) =>
+      this.setTileState(x + i, y + j, this.getFrame(x + i, y + j)),
+    )
 
   getMineCount = (x, y) =>
     NCOORDS.reduce((n, [i, j]) => (this.getIsMine(x + i, y + j) ? n + 1 : n), 0)
 
   getIsMine = (x, y) => intHash(`${this.seed}-${x}-${y}`) % MINE_RATE === 0
 
-  getTile = (x, y) => this.state[`${x}:${y}`] ?? 9
+  getTileState = (x, y) => this.state[`${x}:${y}`] ?? 9
 
-  setTile = (x, y, frame) => {
+  setTileState = (x, y, frame) => {
     this.state[`${x}:${y}`] = frame
     window.room?.send('Move', { x, y, frame })
   }
 
   getFrame = (x, y) => (this.getIsMine(x, y) ? 10 : this.getMineCount(x, y))
-
-  revealNeighbours = (x, y) =>
-    COORDS.forEach(([i, j]) =>
-      this.setTile(x + i, y + j, this.getFrame(x + i, y + j)),
-    )
-
-  floodFill = (x, y) => {
-    let boundLeft = x - 30,
-      boundTop = y - 30,
-      boundRight = x + 30,
-      boundBottom = y + 30,
-      stack = [[x, y]],
-      reachLeft,
-      reachRight
-
-    while (stack.length) {
-      let [x, y] = stack.pop()
-
-      while (y >= boundTop && this.getFrame(x, y) === 0) {
-        y -= 1
-      }
-
-      y += 1
-
-      reachLeft = false
-      reachRight = false
-
-      while (y <= boundBottom && this.getFrame(x, y) === 0) {
-        this.revealNeighbours(x, y)
-
-        y += 1
-
-        if (x > boundLeft) {
-          if (this.getTile(x - 2, y) === 9 && this.getFrame(x - 2, y) === 0) {
-            if (!reachLeft) {
-              stack.push([x - 2, y])
-              reachLeft = true
-            }
-          } else if (reachLeft) {
-            reachLeft = false
-          }
-        }
-
-        if (x < boundRight) {
-          if (this.getTile(x + 2, y) === 9 && this.getFrame(x + 2, y) === 0) {
-            if (!reachRight) {
-              stack.push([x + 2, y])
-              reachRight = true
-            }
-          } else if (reachRight) {
-            reachRight = false
-          }
-        }
-      }
-    }
-  }
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 const intHash = (str) =>
