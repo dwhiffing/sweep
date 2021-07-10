@@ -13,6 +13,7 @@ export const App = ({ config }) => {
   const [availableRooms, setAvailableRooms] = useState([])
   const defaultName = localStorage.getItem('name')
   const [name, setName] = useState(defaultName || 'Player')
+  const [score, setScore] = useState(0)
 
   const onCreateRoom = (name) => {
     createRoom(name)
@@ -51,7 +52,11 @@ export const App = ({ config }) => {
 
   useEffect(() => {
     if (game && !gameRef.current) {
-      gameRef.current = new Phaser.Game(config)
+      const game = new Phaser.Game(config)
+      gameRef.current = game
+      game.registry.events.on('changedata', (_, key, value) => {
+        if (key === 'score') setScore(value)
+      })
     }
   }, [game])
 
@@ -144,11 +149,62 @@ export const App = ({ config }) => {
       </Window>
 
       <Window title="Minesweeper" active={game} onClose={closeGame}>
-        <div id="sweeper" />
+        <div className="container">
+          <Score scoreLeft={score} />
+          <div className="container-inner">
+            <div id="sweeper" />
+          </div>
+        </div>
       </Window>
     </div>
   )
 }
+
+const Score = ({ scoreLeft = 0, scoreRight = 0 }) => (
+  <div className="score-area">
+    <ScoreText score={scoreLeft} />
+    <button className="face-button">
+      <Face value={0} />
+    </button>
+    <ScoreText score={scoreRight} />
+  </div>
+)
+
+const ScoreText = ({ score = 0 }) => (
+  <div className="text">
+    {score
+      .toString()
+      .padStart(10, '-')
+      .split('')
+      .map((value, i) => (
+        <ScoreNumber key={i} value={+value} />
+      ))}
+  </div>
+)
+
+const ScoreNumber = ({ value }) => (
+  <Sprite frameWidth={13} src="./numbers.png" frame={value + 1} />
+)
+
+const Face = ({ value }) => (
+  <Sprite frameWidth={17} src="./faces.png" frame={value} />
+)
+
+const Sprite = ({ src, frameWidth, frame }) => (
+  <div
+    style={{
+      overflow: 'hidden',
+      width: frameWidth,
+      display: 'flex',
+      alignItems: 'center',
+    }}
+  >
+    <img
+      src={src}
+      style={{ position: 'relative', left: -frameWidth * frame }}
+    />
+  </div>
+)
 
 const Window = ({ active, title, onClose, children, className = '' }) => (
   <div class={`window ${active ? '' : 'hidden'} ${className}`}>
