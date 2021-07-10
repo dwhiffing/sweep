@@ -10,13 +10,10 @@ window.colyseus = new Client(
 
 var config = {
   type: Phaser.AUTO,
-  width: 640,
-  height: 640,
-  backgroundColor: '#000',
+  backgroundColor: '#c0c0c0',
   parent: 'phaser-example',
   scale: {
-    // mode: Phaser.Scale.RESIZE,
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.RESIZE,
   },
   scene: Object.values(scenes),
   pixelArt: true,

@@ -1,10 +1,9 @@
 import md5 from 'md5'
 
-const CHUNK_SIZE = 20
 const TILE_SIZE = 32
+const CHUNK_SIZE = Math.min(Math.ceil(window.innerWidth / TILE_SIZE / 2), 35)
 const FLOOD_DIST = 20
 const MINE_RATE = 8
-
 export class GridService {
   constructor(scene) {
     this.scene = scene
@@ -67,13 +66,14 @@ export class GridService {
       chunk.x = COORDS[i][0] + coords.x
       chunk.y = COORDS[i][1] + coords.y
 
-      const { width } = this.scene.cameras.main
-      const offset = width / 2 - (TILE_SIZE * CHUNK_SIZE) / 2
+      const { width, height } = this.scene.cameras.main
+      const yoffset = height / 2 - (TILE_SIZE * CHUNK_SIZE) / 2
+      const xoffset = width / 2 - (TILE_SIZE * CHUNK_SIZE) / 2
       chunk.tiles.getChildren().forEach((tile) => {
         tile._x = tile._cX + chunk.x * CHUNK_SIZE
         tile._y = tile._cY + chunk.y * CHUNK_SIZE
-        tile.x = tile._x * TILE_SIZE + offset
-        tile.y = tile._y * TILE_SIZE + offset
+        tile.x = tile._x * TILE_SIZE + xoffset
+        tile.y = tile._y * TILE_SIZE + yoffset
         tile.setFrame(this.getTileState(tile._x, tile._y))
       })
     })
