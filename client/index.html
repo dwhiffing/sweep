@@ -15,13 +15,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
     }
 
     #sweeper {
       display: flex;
       justify-content: center;
-      max-width: 800px;
-      max-height: 90vh;
+      max-width: 600px;
+      max-height: 600px;
     }
 
     .title-bar-text {
@@ -33,24 +34,131 @@
       margin-right: 4px;
       width: 14px
     }
+
+    .icon-button {
+      color: white;
+      display: flex;
+      width: 90px;
+      align-items: center;
+      flex-direction: column;
+      user-select: none;
+      text-align: center;
+    }
+
+    .icon-button p {
+      margin-top: 6px;
+    }
+
+    .icon-button p,
+    .icon-button img {
+      pointer-events: none;
+    }
+
+    .window-body-white {
+      background: white;
+      margin: 1px;
+    }
+
+    ::-webkit-scrollbar-button:vertical:start:increment,
+    ::-webkit-scrollbar-button:vertical:end:decrement,
+    ::-webkit-scrollbar-button:horizontal:end:increment,
+    ::-webkit-scrollbar-button:horizontal:end:decrement {
+      display: none;
+    }
+
+    :root {
+      --button-highlight: #ffffff;
+      --button-face: #dfdfdf;
+      --button-shadow: #808080;
+      --window-frame: #0a0a0a;
+      --dialog-blue: #000080;
+
+      --border-field: inset -1px -1px var(--button-highlight),
+        inset 1px 1px var(--button-shadow), inset -2px -2px var(--button-face),
+        inset 2px 2px var(--window-frame);
+    }
+
+    .icon-item {
+      margin: 12px 0 0 0;
+      position: relative;
+    }
+
+    p.filename {
+      margin: 8px 0 0 0;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .icon-item.selected p.filename {
+      background-color: rgb(0, 21, 163);
+    }
+
+    .icon-item p.filename {
+      padding: 0 5px;
+    }
+
+    .icon-item.selected .tint {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      top: 0px;
+    }
+
+    .icon-item.selected .tint:before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 255, 255, 0.5);
+      transition: all 0.3s linear;
+      background-color: rgb(0, 21, 163, 0.5);
+    }
+
+    .desktop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+    }
+
+    .window {
+      max-width: 600px;
+      width: 80vw;
+      z-index: 1;
+      position: relative;
+    }
+
+    .window-icons {
+      display: flex;
+      width: 500px;
+    }
+
+    .window.lobby {
+      height: 70vh;
+      background-color: white;
+    }
+
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+      display: none;
+    }
+
+    button {
+      background-color: silver !important;
+      box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px grey,
+        inset 2px 2px #dfdfdf;
+    }
   </style>
 </head>
 
 <body>
-  <div class="window" style="max-width: 800px">
-    <div class="title-bar">
-      <div class="title-bar-text">
-        <img src="./icon.png" />
-        Minesweeper
-      </div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize"></button>
-        <button aria-label="Maximize"></button>
-        <button aria-label="Close"></button>
-      </div>
-    </div>
-    <div id="sweeper" />
-  </div>
+
 </body>
 
 </html>

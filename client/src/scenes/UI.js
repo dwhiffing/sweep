@@ -4,12 +4,12 @@ export default class extends Phaser.Scene {
   }
 
   create() {
-    this.add
-      .image(0, 0, 'tiles', 12)
-      .setInteractive()
-      .setOrigin(0)
-      .setScrollFactor(0)
-      .on('pointerup', this.onLeave)
+    // this.add
+    //   .image(0, 0, 'tiles', 12)
+    //   .setInteractive()
+    //   .setOrigin(0)
+    //   .setScrollFactor(0)
+    //   .on('pointerup', this.onLeave)
   }
 
   onLeave = () => {

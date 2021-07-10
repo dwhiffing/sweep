@@ -16,10 +16,10 @@ export default class extends Phaser.Scene {
     this.gridService.init()
 
     if (window.room) {
+      const room = window.room
       room.onStateChange((state) => {
         this.gridService.sync(state.toJSON().tiles)
       })
-
       this.gridService.sync(room.state.toJSON().tiles)
       room.onLeave((code) => {
         if (code === 1000) localStorage.removeItem(room.id)
