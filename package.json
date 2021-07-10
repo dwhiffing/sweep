@@ -7,7 +7,7 @@
     ]
   },
   "scripts": {
-    "start": "concurrently -n web,ext,api,admin yarn:start:server yarn:start:client",
+    "start": "concurrently -n server,client yarn:start:server yarn:start:client",
     "start:server": "cd server && yarn start",
     "start:client": "cd client && yarn start",
     "format": "prettier --loglevel warn --write \"**/*.{js,css,md}\"",
