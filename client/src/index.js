@@ -11,7 +11,7 @@ window.colyseus = new Client(
 var config = {
   type: Phaser.AUTO,
   backgroundColor: '#c0c0c0',
-  parent: 'phaser-example',
+  parent: 'sweeper',
   scale: {
     mode: Phaser.Scale.RESIZE,
   },

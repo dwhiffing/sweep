@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  background-color: #008080;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#sweeper {
+  display: flex;
+  justify-content: center;
+  max-width: 800px;
+  max-height: 90vh;
+}
+
+.title-bar-text {
+  display: flex;
+  align-items: center;
+}
+
+.title-bar-text img {
+  margin-right: 4px;
+  width: 14px;
+}

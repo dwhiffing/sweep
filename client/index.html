@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="shortcut icon" type="image/png" href="./favicon.png" />
+  <meta name="theme-color" content="#000000" />
+  <link rel="manifest" href="./manifest.json" />
+  <title>Infinisweeper</title>
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
+  <style>
+    body {
+      margin: 0;
+      background-color: #008080;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #sweeper {
+      display: flex;
+      justify-content: center;
+      max-width: 800px;
+      max-height: 90vh;
+    }
+
+    .title-bar-text {
+      display: flex;
+      align-items: center;
+    }
+
+    .title-bar-text img {
+      margin-right: 4px;
+      width: 14px
+    }
+  </style>
+</head>
+
+<body>
+  <div class="window" style="max-width: 800px">
+    <div class="title-bar">
+      <div class="title-bar-text">
+        <img src="./icon.png" />
+        Minesweeper
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close"></button>
+      </div>
+    </div>
+    <div id="sweeper" />
+  </div>
+</body>
+
+</html>
