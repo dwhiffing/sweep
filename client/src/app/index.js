@@ -94,15 +94,15 @@ export const App = ({ config }) => {
   }
 
   const ICONS = [
-    { name: 'Solo', image: 'icon.png', onClick: startGame },
-    { name: 'Multi', image: 'icon.png', onClick: startLobby },
+    { name: 'Solo', image: './assets/images/icon.png', onClick: startGame },
+    { name: 'Multi', image: './assets/images/icon.png', onClick: startLobby },
   ]
 
   const LOBBY_ICONS = [
-    { name: name, image: 'icon.png', onClick: promptName },
+    { name: name, image: './assets/images/icon.png', onClick: promptName },
     {
       name: 'Create game',
-      image: 'icon.png',
+      image: './assets/images/icon.png',
       onClick: () => onCreateRoom(name),
     },
   ]
@@ -132,7 +132,7 @@ export const App = ({ config }) => {
             ...LOBBY_ICONS,
             ...availableRooms.map((room) => ({
               name: room.metadata.roomName || room.roomId,
-              image: 'icon.png',
+              image: './assets/images/icon.png',
               onClick: () => onJoinRoom(room.roomId, name),
             })),
           ].map((icon) => (
@@ -183,11 +183,11 @@ const ScoreText = ({ score = 0 }) => (
 )
 
 const ScoreNumber = ({ value }) => (
-  <Sprite frameWidth={13} src="./numbers.png" frame={value + 1} />
+  <Sprite frameWidth={13} src="./assets/images/numbers.png" frame={value + 1} />
 )
 
 const Face = ({ value }) => (
-  <Sprite frameWidth={17} src="./faces.png" frame={value} />
+  <Sprite frameWidth={17} src="./assets/images/faces.png" frame={value} />
 )
 
 const Sprite = ({ src, frameWidth, frame }) => (
@@ -210,7 +210,7 @@ const Window = ({ active, title, onClose, children, className = '' }) => (
   <div class={`window ${active ? '' : 'hidden'} ${className}`}>
     <div class="title-bar">
       <div class="title-bar-text">
-        <img src="./icon.png" />
+        <img src="./assets/images/icon.png" />
         {title}
       </div>
       <div class="title-bar-controls">
