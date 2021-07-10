@@ -1,7 +1,8 @@
 import md5 from 'md5'
 
 const TILE_SIZE = 32
-const CHUNK_SIZE = Math.min(Math.ceil(window.innerWidth / TILE_SIZE / 2), 35)
+// const CHUNK_SIZE = Math.min(Math.ceil(window.innerWidth / TILE_SIZE / 2), 35)
+const CHUNK_SIZE = 20
 const FLOOD_DIST = 20
 const MINE_RATE = 8
 export class GridService {
@@ -40,7 +41,11 @@ export class GridService {
               if (p.leftButtonDown()) tile.setFrame(0)
             })
             .on('pointerdown', (p) => {
-              if (!this.getIsRevealable(tile._x, tile._y)) return
+              if (
+                !this.getIsRevealable(tile._x, tile._y) ||
+                p.rightButtonDown()
+              )
+                return
               tile.setFrame(0)
             })
             .on('pointerout', (p) => {
@@ -48,7 +53,11 @@ export class GridService {
               if (p.leftButtonDown()) tile.setFrame(9)
             })
             .on('pointerup', (p) => {
-              if (!this.getIsRevealable(tile._x, tile._y)) return
+              if (
+                !this.getIsRevealable(tile._x, tile._y) &&
+                !p.rightButtonReleased()
+              )
+                return
               this.onClickTile(tile, p.rightButtonReleased())
             })
         }
@@ -92,6 +101,7 @@ export class GridService {
   }
 
   markTile = (x, y) => {
+    const tileState = this.getTileState(x, y)
     const markFrame = tileState === 9 ? 11 : tileState === 11 ? 13 : 9
     this.setTileState(x, y, markFrame)
   }
@@ -128,7 +138,9 @@ export class GridService {
 
   hasHiddenAdj = (x, y) =>
     this.getFrame(x, y) === 0 &&
-    NCOORDS.some(([i, j]) => [9, 13].includes(this.getTileState(x + i, y + j)))
+    NCOORDS.some(([i, j]) =>
+      [9, 11, 13].includes(this.getTileState(x + i, y + j)),
+    )
 
   revealAdj = (x, y) =>
     COORDS.forEach(([i, j]) =>
