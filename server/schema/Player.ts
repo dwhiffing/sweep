@@ -13,10 +13,17 @@ export class Player extends Schema {
   connected = true
 
   @type('number')
+  score = 0
+
+  @type('number')
   remainingConnectionTime = 0
 
   constructor(id: string) {
     super()
     this.id = id
+  }
+  addScore = (score) => {
+    this.score += score
+    if (this.score < 0) this.score = 0
   }
 }

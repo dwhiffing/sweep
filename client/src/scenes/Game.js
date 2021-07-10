@@ -18,10 +18,14 @@ export default class extends Phaser.Scene {
 
     if (window.room) {
       const room = window.room
-      room.onStateChange((state) => {
-        this.tileService.sync(state.toJSON().tiles)
-      })
-      this.tileService.sync(room.state.toJSON().tiles)
+      const sync = (changes) => {
+        this.tileService.sync(changes.tiles)
+        const playerId = localStorage.getItem(room.id)
+        const player = changes.players.find((p) => p.id === playerId)
+        player && this.registry.set('score', player.score)
+      }
+      sync(room.state.toJSON())
+      room.onStateChange((state) => sync(state.toJSON()))
       room.onLeave((code) => {
         if (code === 1000) localStorage.removeItem(room.id)
         window.room = null

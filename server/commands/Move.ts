@@ -1,16 +1,25 @@
 import { Command } from '@colyseus/command'
 import { MapSchema } from '@colyseus/schema'
 import { RoomState } from '../schema'
-import { getState, markTile, revealTile } from '../../lib/minesweeper'
+import {
+  getIsMine,
+  getState,
+  markTile,
+  revealTile,
+} from '../../lib/minesweeper'
 
 export class MoveCommand extends Command<
   RoomState,
-  { x: any; y: any; shouldMark: any }
+  { playerId; x: any; y: any; shouldMark: any }
 > {
-  execute({ x, y, shouldMark }) {
-    if (shouldMark) {
+  execute({ playerId, x, y, shouldMark }) {
+    const player = this.state.players.find((p) => p.id === playerId)
+    const isMine = getIsMine(x, y)
+    if (shouldMark && isMine) {
       markTile(x, y)
+      player.addScore(1)
     } else {
+      player.addScore(shouldMark ? -1 : isMine ? -10 : 1)
       revealTile(x, y)
     }
 
