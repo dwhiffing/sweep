@@ -10,6 +10,7 @@ export default class extends Phaser.Scene {
     this.input.mouse.disableContextMenu()
     this.cameraService = new CameraService(this)
     this.tileService = new TileService(this)
+    this.registry.set('score', 0)
   }
 
   create() {

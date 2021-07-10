@@ -106,7 +106,7 @@ const TILE_SIZE = 32
 const CHUNK_SIZE = 18
 // const CHUNK_SIZE = Math.min(Math.ceil(window.innerWidth / TILE_SIZE / 2), 35)
 
-const getIsRevealable = (x, y) => [9, 13].includes(getTileState(x, y))
+const getIsRevealable = (x, y) => getTileState(x, y) === 9
 const getChunkCoords = (x, y) => ({ x: getChunkCoord(x), y: getChunkCoord(y) })
 
 const getChunkCoord = (n) =>
