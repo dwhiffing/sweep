@@ -7,17 +7,217 @@
   <meta name="theme-color" content="#000000" />
   <link rel="manifest" href="./manifest.json" />
   <title>Infinisweeper</title>
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
   <style>
     body {
       margin: 0;
-      background-color: #888;
+      background-color: #008080;
       display: flex;
       justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #sweeper {
+      display: flex;
+      justify-content: center;
+      max-width: 600px;
+      max-height: 600px;
+    }
+
+    .title-bar-text {
+      display: flex;
+      align-items: center;
+    }
+
+    .title-bar-text img {
+      margin-right: 4px;
+      width: 14px
+    }
+
+    .icon-button {
+      color: white;
+      display: flex;
+      width: 90px;
+      align-items: center;
+      flex-direction: column;
+      user-select: none;
+      text-align: center;
+    }
+
+    .icon-button p {
+      margin-top: 6px;
+    }
+
+    .icon-button p,
+    .icon-button img {
+      pointer-events: none;
+    }
+
+    .window-body-white {
+      background: white;
+      margin: 1px;
+    }
+
+    ::-webkit-scrollbar-button:vertical:start:increment,
+    ::-webkit-scrollbar-button:vertical:end:decrement,
+    ::-webkit-scrollbar-button:horizontal:end:increment,
+    ::-webkit-scrollbar-button:horizontal:end:decrement {
+      display: none;
+    }
+
+    :root {
+      --button-highlight: #ffffff;
+      --button-face: #dfdfdf;
+      --button-shadow: #808080;
+      --window-frame: #0a0a0a;
+      --dialog-blue: #000080;
+
+      --border-field: inset -1px -1px var(--button-highlight),
+        inset 1px 1px var(--button-shadow), inset -2px -2px var(--button-face),
+        inset 2px 2px var(--window-frame);
+    }
+
+    .icon-item {
+      margin: 12px 0 0 0;
+      position: relative;
+    }
+
+    p.filename {
+      margin: 8px 0 0 0;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .icon-item.selected p.filename {
+      background-color: rgb(0, 21, 163);
+    }
+
+    .icon-item p.filename {
+      padding: 0 5px;
+    }
+
+    .icon-item.selected .tint {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      top: 0px;
+    }
+
+    .icon-item.selected .tint:before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 255, 255, 0.5);
+      transition: all 0.3s linear;
+      background-color: rgb(0, 21, 163, 0.5);
+    }
+
+    .desktop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+    }
+
+    .window {
+      max-width: 600px;
+      width: 80vw;
+      z-index: 1;
+      position: relative;
+    }
+
+    .window-icons {
+      display: flex;
+      width: 500px;
+    }
+
+    .window.lobby {
+      height: 70vh;
+      background-color: white;
+    }
+
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+      display: none;
+    }
+
+    button {
+      background-color: silver !important;
+      box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px grey,
+        inset 2px 2px #dfdfdf;
+    }
+
+    .container {
+      border-width: 3px;
+      border-style: solid;
+      border-top-color: #efefef;
+      border-left-color: #efefef;
+      border-bottom-color: #878a8f;
+      border-right-color: #878a8f;
+      box-sizing: border-box;
+      margin: 2px;
+      padding: 8px;
+      margin-top: 3px;
+    }
+
+    .container-inner {
+      border-width: 4px;
+      border-style: solid;
+      border-top-color: #878a8f;
+      border-left-color: #878a8f;
+      border-bottom-color: #efefef;
+      border-right-color: #efefef;
+      box-sizing: border-box;
+    }
+
+    .score-area {
+      display: flex;
+      justify-content: space-between;
+      border-width: 2px;
+      border-style: solid;
+      border-top-color: #878a8f;
+      border-left-color: #878a8f;
+      border-bottom-color: #efefef;
+      border-right-color: #efefef;
+      box-sizing: border-box;
+      margin-bottom: 8px;
+      padding: 8px;
+    }
+
+    .score-area .text {
+      display: flex;
+      background-color: black;
+      flex: 1;
+      max-width: 130px;
+      padding: 1px;
+    }
+
+    button.face-button {
+      min-width: auto;
+      width: 26px;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .score-area button {
+      margin: 0 10px;
     }
   </style>
 </head>
 
 <body>
+
 <script type="text/javascript" src="bundle.min.js"></script></body>
 
 </html>
