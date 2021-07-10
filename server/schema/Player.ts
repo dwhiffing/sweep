@@ -9,9 +9,6 @@ export class Player extends Schema {
   @type('string')
   name = ''
 
-  @type('number')
-  team = -1
-
   @type('boolean')
   connected = true
 
@@ -23,4 +20,3 @@ export class Player extends Schema {
     this.id = id
   }
 }
-
