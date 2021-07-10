@@ -1,27 +1,21 @@
-import {
-  setState,
-  COORDS,
-  markTile,
-  revealTile,
-  getTileState,
-} from '../../../lib/minesweeper'
+import { Minesweeper, COORDS } from '../../../lib/minesweeper'
 
 export class TileService {
   constructor(scene) {
     this.scene = scene
+    this.sweeper = new Minesweeper()
   }
 
   init = () => {
-    setState({})
     this.lastCoords = {}
     this.chunks = this.loadChunks()
     this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
   }
 
   sync = (state) => {
-    setState(state)
+    this.sweeper.state = state
     this.tiles.forEach((sprite) =>
-      sprite.setFrame(getTileState(sprite._x, sprite._y)),
+      sprite.setFrame(this.sweeper.getTileState(sprite._x, sprite._y)),
     )
   }
 
@@ -34,27 +28,23 @@ export class TileService {
           tiles.add(tile)
           tile._cX = x
           tile._cY = y
+
           tile
             .setInteractive()
             .on('pointerover', (p) => {
-              if (!getIsRevealable(tile._x, tile._y)) return
+              if (!this.isRevealable(tile)) return
               if (p.leftButtonDown()) tile.setFrame(0)
             })
             .on('pointerdown', (p) => {
-              if (!getIsRevealable(tile._x, tile._y) || p.rightButtonDown())
-                return
+              if (!this.isRevealable(tile) || p.rightButtonDown()) return
               tile.setFrame(0)
             })
             .on('pointerout', (p) => {
-              if (!getIsRevealable(tile._x, tile._y)) return
+              if (!this.isRevealable(tile)) return
               if (p.leftButtonDown()) tile.setFrame(9)
             })
             .on('pointerup', (p) => {
-              if (
-                !getIsRevealable(tile._x, tile._y) &&
-                !p.rightButtonReleased()
-              )
-                return
+              if (!this.isRevealable(tile) && !p.rightButtonReleased()) return
               this.onClickTile(tile, p.rightButtonReleased())
             })
         }
@@ -80,7 +70,7 @@ export class TileService {
         tile._y = tile._cY + chunk.y * CHUNK_SIZE
         tile.x = tile._x * TILE_SIZE + xoffset
         tile.y = tile._y * TILE_SIZE + yoffset
-        tile.setFrame(getTileState(tile._x, tile._y))
+        tile.setFrame(this.sweeper.getTileState(tile._x, tile._y))
       })
     })
   }
@@ -90,23 +80,25 @@ export class TileService {
       window.room.send('Move', { x: tile._x, y: tile._y, shouldMark })
       return
     }
+
     if (shouldMark) {
-      markTile(tile._x, tile._y)
+      this.sweeper.markTile(tile._x, tile._y)
     } else {
-      revealTile(tile._x, tile._y)
+      this.sweeper.revealTile(tile._x, tile._y)
     }
 
     this.tiles.forEach((sprite) =>
-      sprite.setFrame(getTileState(sprite._x, sprite._y)),
+      sprite.setFrame(this.sweeper.getTileState(sprite._x, sprite._y)),
     )
   }
+
+  isRevealable = (tile) => this.sweeper.getTileState(tile._x, tile._y) === 9
 }
 
 const TILE_SIZE = 32
 const CHUNK_SIZE = 18
 // const CHUNK_SIZE = Math.min(Math.ceil(window.innerWidth / TILE_SIZE / 2), 35)
 
-const getIsRevealable = (x, y) => getTileState(x, y) === 9
 const getChunkCoords = (x, y) => ({ x: getChunkCoord(x), y: getChunkCoord(y) })
 
 const getChunkCoord = (n) =>

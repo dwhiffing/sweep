@@ -2,7 +2,6 @@ import { Room, Client, ServerError } from 'colyseus'
 import { RoomState } from '../schema'
 import { Dispatcher } from '@colyseus/command'
 import * as Commands from '../commands'
-import { setState } from '../../lib/minesweeper'
 
 export class MinesweeperRoom extends Room<RoomState> {
   maxClients = 10
@@ -10,7 +9,6 @@ export class MinesweeperRoom extends Room<RoomState> {
 
   onCreate({ roomName = 'MinesweeperRoom' } = {}) {
     this.setState(new RoomState())
-    setState({})
     this.setMetadata({ roomName })
 
     this.onMessage('*', (client, action, _data = {}) => {
