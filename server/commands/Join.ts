@@ -1,9 +1,10 @@
 import { Command } from '@colyseus/command'
 import { Player, RoomState } from '../schema'
 
+// TODO: move colors to client, should just be player index
 const COLORS = [
   '#ffffff',
-  '#130fe5',
+  '#4a46fb',
   '#3ad6d3',
   '#11c043',
   '#fdf148',

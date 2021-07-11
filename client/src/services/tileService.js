@@ -139,6 +139,7 @@ export class TileService {
     const otherPlayers = state.players.filter(
       (p) => p.id !== this.uiScene.player?.id,
     )
+    this.cursorGroup.getChildren().forEach((c) => c.setVisible(false))
     otherPlayers.forEach((player) => {
       let cursor = this.cursors[player.id]
       if (!cursor) {
@@ -154,6 +155,7 @@ export class TileService {
         )
         this.cursors[player.id] = cursor
       }
+      cursor.setVisible(true)
       this.cursorTweens[player.id]?.remove()
       this.cursorTweens[player.id] = this.scene.tweens.add({
         targets: cursor,
@@ -173,8 +175,6 @@ export class TileService {
       this.scene.cameras.main.shake(250, 0.025)
 
     const { _x: x, _y: y } = tile
-
-    // TODO: should have server data for scoring so scores are shown on all clients
 
     if (window.room) {
       window.room.send('Move', { x, y, shouldMark })
