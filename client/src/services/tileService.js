@@ -4,7 +4,7 @@ export class TileService {
   constructor(scene) {
     this.scene = scene
     this.uiScene = scene.scene.get('UI')
-    this.sweeper = new Minesweeper()
+    this.sweeper = new Minesweeper(Date.now().toString())
     this.players = []
   }
 

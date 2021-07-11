@@ -13,6 +13,6 @@ export class RoomState extends Schema {
 
   constructor() {
     super()
-    this.minesweeper = new Minesweeper()
+    this.minesweeper = new Minesweeper(Date.now().toString())
   }
 }
