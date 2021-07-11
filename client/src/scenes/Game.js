@@ -15,9 +15,18 @@ export default class extends Phaser.Scene {
 
   create() {
     this.tileService.init()
-    this.cursorText = this.add.text(0, 0, '0,0').setScrollFactor(0)
+    this.cursorText = this.add
+      .text(0, 0, '0,0', { color: '#000', fontFamily: 'Arial', fontSize: 12 })
+      .setScrollFactor(0)
+      .setOrigin(1, 1)
+    this.cursor = this.add
+      .sprite(0, 0, 'cursor')
+      .setScale(2)
+      .setScrollFactor(0)
+      .setOrigin(0, 0)
     this.input.on('pointermove', (p) => {
-      this.cursorText.setPosition(p.x + 10, p.y + 10)
+      this.cursor.setPosition(p.x, p.y)
+      this.cursorText.setPosition(p.x, p.y)
     })
 
     if (window.room) {
@@ -26,8 +35,12 @@ export default class extends Phaser.Scene {
         this.tileService.sync(changes)
         const playerId = localStorage.getItem(room.id)
         const player = changes.players.find((p) => p.id === playerId)
-        player && this.registry.set('score', player.score)
+        if (player) {
+          this.registry.set('score', player.score)
+          this.cursor.setTint(player.color)
+        }
       }
+
       sync(room.state.toJSON())
       room.onStateChange((state) => sync(state.toJSON()))
       room.onLeave((code) => {

@@ -17,6 +17,8 @@ export default class extends Phaser.Scene {
       frameHeight: 32,
     })
 
+    this.load.image('cursor', 'assets/images/cursor.png')
+
     this.load.on('complete', () => {
       progress.destroy()
       this.scene.start('Game')
