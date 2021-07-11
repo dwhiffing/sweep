@@ -31,13 +31,9 @@ export default class extends Phaser.Scene {
         const player = changes.players.find((p) => p.id === playerId)
         if (player) {
           this.registry.set('score', player.score)
-          this.cursor.setTint(player.color)
-          // this.scoreText.setPosition(this.cursor.x, this.cursor.y).setAlpha(1)
-          // this.tweens.add({
-          //   targets: [this.scoreText],
-          //   y: this.scoreText.y - 100,
-          //   duration: 500,
-          // })
+          this.cursor.setTint(
+            Phaser.Display.Color.HexStringToColor(player.color).color,
+          )
         }
       }
 

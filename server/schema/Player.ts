@@ -22,8 +22,8 @@ export class Player extends Schema {
   @type('number')
   score = 0
 
-  @type('number')
-  color = 0xff0000
+  @type('string')
+  color = '#ff0000'
 
   @type('number')
   remainingConnectionTime = 0

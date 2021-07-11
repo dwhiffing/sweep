@@ -84,7 +84,9 @@ export class TileService {
           const matchingPlayer = this.players.find((p) =>
             p.tiles.find(({ x, y }) => tile._x === x && tile._y === y),
           )
-          tile.setTint(matchingPlayer?.color)
+          tile.setTint(
+            Phaser.Display.Color.HexStringToColor(matchingPlayer?.color).color,
+          )
         } else {
           tile.clearTint()
         }
