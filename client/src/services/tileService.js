@@ -12,6 +12,7 @@ export class TileService {
     this.lastCoords = {}
     this.chunks = this.loadChunks()
     this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
+    this.textGroup = this.loadText()
     this.update(true)
   }
 
@@ -19,6 +20,26 @@ export class TileService {
     this.sweeper.state = state.tiles
     this.players = state.players
     this.update(true)
+  }
+
+  loadText = () => {
+    const group = this.scene.add.group({
+      createCallback: (text) =>
+        text
+          .setFontFamily('Arial')
+          .setFontSize(24)
+          .setOrigin(0)
+          .setStroke('#000', 4),
+    })
+    group.createMultiple({
+      classType: Phaser.GameObjects.Text,
+      key: ' ',
+      visible: false,
+      active: false,
+      repeat: 20,
+      max: 20,
+    })
+    return group
   }
 
   loadChunks = () =>
@@ -95,19 +116,28 @@ export class TileService {
   }
 
   onClickTile = (tile, shouldMark) => {
+    const frame = this.sweeper.getTileState(tile._x, tile._y)
+    if (frame !== 9) return
+
     const isMine = this.sweeper.getIsMine(tile._x, tile._y)
     if ((isMine && !shouldMark) || (!isMine && shouldMark))
       this.scene.cameras.main.shake(250, 0.025)
 
+    const { _x: x, _y: y } = tile
+
+    // TODO: should have server data for scoring so scores are shown on all clients
+    const value = this.sweeper.getScore(x, y, shouldMark)
+    this.showScoreText(tile.x, tile.y, value)
+
     if (window.room) {
-      window.room.send('Move', { x: tile._x, y: tile._y, shouldMark })
+      window.room.send('Move', { x, y, shouldMark })
       return
     }
 
     if (shouldMark) {
-      this.sweeper.markTile(tile._x, tile._y)
+      this.sweeper.markTile(x, y)
     } else {
-      this.sweeper.revealTile(tile._x, tile._y)
+      this.sweeper.revealTile(x, y)
     }
 
     this.tiles.forEach((sprite) =>
@@ -115,12 +145,33 @@ export class TileService {
     )
   }
 
+  showScoreText = (x, y, value) => {
+    const text = this.textGroup.get()
+    text
+      .setPosition(x, y)
+      .setAlpha(1)
+      .setActive(true)
+      .setVisible(true)
+      .setText(`${value > 0 ? '+' : '-'}${Math.abs(value)}`)
+      .setColor(this.uiScene.player.color)
+    this.scene.tweens
+      .createTimeline()
+      .add({ targets: text, y: y - 10, duration: 800 })
+      .add({
+        targets: text,
+        y: y - 15,
+        alpha: 0,
+        duration: 400,
+        onComplete: () => text.setActive(false).setVisible(false),
+      })
+      .play()
+  }
+
   isRevealable = (tile) => this.sweeper.getTileState(tile._x, tile._y) === 9
 }
 
 const TILE_SIZE = 32
 const CHUNK_SIZE = 18
-// const CHUNK_SIZE = Math.min(Math.ceil(window.innerWidth / TILE_SIZE / 2), 35)
 
 const getChunkCoords = (x, y) => ({ x: getChunkCoord(x), y: getChunkCoord(y) })
 

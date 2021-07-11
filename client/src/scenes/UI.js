@@ -5,14 +5,12 @@ export default class extends Phaser.Scene {
 
   create() {
     this.cursorText = this.add
-      .text(0, 0, '0,0', { color: '#000', fontFamily: 'Arial', fontSize: 12 })
-      .setScrollFactor(0)
+      .text(0, 0, '0,0')
+      .setFontSize(12)
+      .setColor('#000')
+      .setFontFamily('Arial')
       .setOrigin(1, 1)
 
-    this.scoreText = this.add
-      .text(0, 0, '', { color: '#000', fontFamily: 'Arial', fontSize: 12 })
-      .setScrollFactor(0)
-      .setOrigin(1, 1)
     this.cursor = this.add
       .sprite(0, 0, 'cursor')
       .setScale(2)
@@ -28,11 +26,11 @@ export default class extends Phaser.Scene {
       const room = window.room
       const sync = (changes) => {
         const playerId = localStorage.getItem(room.id)
-        const player = changes.players.find((p) => p.id === playerId)
-        if (player) {
-          this.registry.set('score', player.score)
+        this.player = changes.players.find((p) => p.id === playerId)
+        if (this.player) {
+          this.registry.set('score', this.player.score)
           this.cursor.setTint(
-            Phaser.Display.Color.HexStringToColor(player.color).color,
+            Phaser.Display.Color.HexStringToColor(this.player.color).color,
           )
         }
       }
