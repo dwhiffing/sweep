@@ -89,7 +89,9 @@ export class TileService {
             p.tiles.find(({ x, y }) => tile._x === x && tile._y === y),
           )
           tile.setTint(
-            Phaser.Display.Color.HexStringToColor(matchingPlayer?.color).color,
+            Phaser.Display.Color.HexStringToColor(
+              matchingPlayer?.color || '#fff',
+            ).color,
           )
         } else {
           tile.clearTint()
@@ -143,7 +145,7 @@ export class TileService {
         cursor = this.cursorGroup.get()
         cursor.setVisible(true).setActive(true).setScale(2).setOrigin(0)
         cursor.setTint(
-          Phaser.Display.Color.HexStringToColor(player?.color).color,
+          Phaser.Display.Color.HexStringToColor(player?.color || '#fff').color,
         )
         this.cursors[player.id] = cursor
       }

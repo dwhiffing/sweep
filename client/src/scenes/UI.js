@@ -30,7 +30,8 @@ export default class extends Phaser.Scene {
         if (this.player) {
           this.registry.set('score', this.player.score)
           this.cursor.setTint(
-            Phaser.Display.Color.HexStringToColor(this.player.color).color,
+            Phaser.Display.Color.HexStringToColor(this.player?.color || '#fff')
+              .color,
           )
         }
       }
