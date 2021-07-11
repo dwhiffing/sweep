@@ -92,6 +92,10 @@ export class TileService {
   }
 
   onClickTile = (tile, shouldMark) => {
+    const isMine = this.sweeper.getIsMine(tile._x, tile._y)
+    if ((isMine && !shouldMark) || (!isMine && shouldMark))
+      this.scene.cameras.main.shake(250, 0.025)
+
     if (window.room) {
       window.room.send('Move', { x: tile._x, y: tile._y, shouldMark })
       return
