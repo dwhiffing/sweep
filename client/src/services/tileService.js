@@ -10,10 +10,10 @@ export class TileService {
 
   init = () => {
     this.lastCoords = {}
-    this.chunks = this.loadChunks()
-    this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
     this.textGroup = this.loadText()
     this.cursorGroup = this.loadCursors()
+    this.chunks = this.loadChunks()
+    this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
 
     this.update(true)
   }
@@ -143,7 +143,12 @@ export class TileService {
       let cursor = this.cursors[player.id]
       if (!cursor) {
         cursor = this.cursorGroup.get()
-        cursor.setVisible(true).setActive(true).setScale(2).setOrigin(0)
+        cursor
+          .setVisible(true)
+          .setActive(true)
+          .setScale(2)
+          .setOrigin(0)
+          .setDepth(11)
         cursor.setTint(
           Phaser.Display.Color.HexStringToColor(player?.color || '#fff').color,
         )
@@ -170,15 +175,15 @@ export class TileService {
     const { _x: x, _y: y } = tile
 
     // TODO: should have server data for scoring so scores are shown on all clients
-    const value = this.sweeper.getScore(x, y, shouldMark)
-    this.showScoreText(tile.x, tile.y, value)
 
     if (window.room) {
       window.room.send('Move', { x, y, shouldMark })
       return
-    } else {
-      this.scene.registry.set('score', (s) => Math.max(0, s + value))
     }
+
+    const value = this.sweeper.getScore(x, y, shouldMark)
+    this.showScoreText(tile.x, tile.y, value)
+    this.scene.registry.set('score', (s) => Math.max(0, s + value))
 
     if (shouldMark) {
       this.sweeper.markTile(x, y)
@@ -191,15 +196,16 @@ export class TileService {
     )
   }
 
-  showScoreText = (x, y, value) => {
+  showScoreText = (x, y, value, color = '#ffffff') => {
     const text = this.textGroup.get()
     text
       .setPosition(x, y)
       .setAlpha(1)
       .setActive(true)
       .setVisible(true)
+      .setDepth(10)
       .setText(`${value > 0 ? '+' : '-'}${Math.abs(value)}`)
-      .setColor(this.uiScene.player?.color || '#ffffff')
+      .setColor(color)
     this.scene.tweens
       .createTimeline()
       .add({ targets: text, y: y - 10, duration: 800 })

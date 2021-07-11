@@ -19,6 +19,14 @@ export class MinesweeperRoom extends Room<RoomState> {
         broadcast: this.broadcast.bind(this),
         playerId: _data.playerId || client.sessionId,
       })
+      const player = this.state.players.find((p) => p.id === client.sessionId)
+
+      if (action === 'Move') {
+        this.broadcast(
+          'Move',
+          `Move:${player.color}:${_data.x}:${_data.y}:${_data.shouldMark}`,
+        )
+      }
     })
   }
 
