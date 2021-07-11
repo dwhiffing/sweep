@@ -150,7 +150,7 @@ export const App = ({ config }) => {
 
       <Window title="Minesweeper" active={game} onClose={closeGame}>
         <div className="container">
-          <Score scoreLeft={score} />
+          <Score scoreRight={score} />
           <div className="container-inner">
             <div id="sweeper" />
           </div>
@@ -160,7 +160,7 @@ export const App = ({ config }) => {
   )
 }
 
-const Score = ({ scoreLeft = 0, scoreRight = 0 }) => (
+const Score = ({ scoreLeft, scoreRight = 0 }) => (
   <div className="score-area">
     <ScoreText score={scoreLeft} />
     <button className="face-button">
@@ -170,7 +170,7 @@ const Score = ({ scoreLeft = 0, scoreRight = 0 }) => (
   </div>
 )
 
-const ScoreText = ({ score = 0 }) => (
+const ScoreText = ({ score = '' }) => (
   <div className="text">
     {score
       .toString()
