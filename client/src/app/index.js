@@ -177,7 +177,7 @@ const ScoreText = ({ score = 0 }) => (
       .padStart(10, '-')
       .split('')
       .map((value, i) => (
-        <ScoreNumber key={i} value={+value} />
+        <ScoreNumber key={`${value}-${i}`} value={+value} />
       ))}
   </div>
 )
