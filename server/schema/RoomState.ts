@@ -6,6 +6,9 @@ export class RoomState extends Schema {
   @type([Player])
   players = new ArraySchema<Player>()
 
+  @type('string')
+  seed
+
   @type({ map: 'number' })
   tiles = new MapSchema<number>()
 
@@ -13,6 +16,7 @@ export class RoomState extends Schema {
 
   constructor() {
     super()
-    this.minesweeper = new Minesweeper(Date.now().toString())
+    this.seed = Date.now().toString()
+    this.minesweeper = new Minesweeper(this.seed)
   }
 }
