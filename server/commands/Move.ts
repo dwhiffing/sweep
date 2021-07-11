@@ -21,12 +21,8 @@ export class MoveCommand extends Command<
     } else {
       this.state.minesweeper.revealTile(x, y)
     }
-
-    if (shouldMark) {
-      player.addScore(isMine ? 1 : -1)
-    } else {
-      player.addScore(isMine ? -10 : 1)
-    }
+    const newScore = this.state.minesweeper.getScore(x, y, shouldMark)
+    player.addScore(newScore)
 
     this.state.tiles = new MapSchema(this.state.minesweeper.state)
   }
