@@ -10,6 +10,7 @@
     "start": "concurrently -n server,client yarn:start:server yarn:start:client",
     "start:server": "cd server && yarn start",
     "start:client": "cd client && yarn start",
+    "deploy": "cd client && yarn deploy",
     "format": "prettier --loglevel warn --write \"**/*.{js,css,md}\"",
     "format:ci": "prettier --check \"**/*.{js,css,md}\"",
     "clean": "find . -name \"node_modules\" -exec rm -rf '{}' +"
