@@ -3,6 +3,7 @@ import { Minesweeper, COORDS } from '../../../lib/minesweeper'
 export class TileService {
   constructor(scene) {
     this.scene = scene
+    this.uiScene = scene.scene.get('UI')
     this.sweeper = new Minesweeper()
     this.players = []
   }
@@ -33,7 +34,7 @@ export class TileService {
           tile
             .setInteractive()
             .on('pointerover', (p) => {
-              this.scene.cursorText.setText(`${tile._x},${tile._y}`)
+              this.uiScene.cursorText.setText(`${tile._x},${tile._y}`)
               if (!this.isRevealable(tile)) return
               if (p.leftButtonDown()) tile.setFrame(0)
             })

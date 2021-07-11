@@ -4,20 +4,45 @@ export default class extends Phaser.Scene {
   }
 
   create() {
-    // this.add
-    //   .image(0, 0, 'tiles', 12)
-    //   .setInteractive()
-    //   .setOrigin(0)
-    //   .setScrollFactor(0)
-    //   .on('pointerup', this.onLeave)
-  }
+    this.cursorText = this.add
+      .text(0, 0, '0,0', { color: '#000', fontFamily: 'Arial', fontSize: 12 })
+      .setScrollFactor(0)
+      .setOrigin(1, 1)
 
-  onLeave = () => {
-    const game = this.scene.get('Game')
+    this.scoreText = this.add
+      .text(0, 0, '', { color: '#000', fontFamily: 'Arial', fontSize: 12 })
+      .setScrollFactor(0)
+      .setOrigin(1, 1)
+    this.cursor = this.add
+      .sprite(0, 0, 'cursor')
+      .setScale(2)
+      .setScrollFactor(0)
+      .setOrigin(0, 0)
+
+    this.input.on('pointermove', (p) => {
+      this.cursor.setPosition(p.x, p.y)
+      this.cursorText.setPosition(p.x, p.y)
+    })
+
     if (window.room) {
-      window.room?.leave()
+      const room = window.room
+      const sync = (changes) => {
+        const playerId = localStorage.getItem(room.id)
+        const player = changes.players.find((p) => p.id === playerId)
+        if (player) {
+          this.registry.set('score', player.score)
+          this.cursor.setTint(player.color)
+          // this.scoreText.setPosition(this.cursor.x, this.cursor.y).setAlpha(1)
+          // this.tweens.add({
+          //   targets: [this.scoreText],
+          //   y: this.scoreText.y - 100,
+          //   duration: 500,
+          // })
+        }
+      }
+
+      sync(room.state.toJSON())
+      room.onStateChange((state) => sync(state.toJSON()))
     }
-    this.scene.get('Game').scene.stop()
-    this.scene.stop().run('Menu')
   }
 }
