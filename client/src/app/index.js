@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'preact/hooks'
 import { h } from 'preact'
 import { Icon } from './Icon'
+import { Window } from './Window'
+import { ScorePanel } from './ScorePanel'
 
 export const App = ({ config }) => {
   const gameRef = useRef(false)
@@ -150,7 +152,7 @@ export const App = ({ config }) => {
 
       <Window title="Minesweeper" active={game} onClose={closeGame}>
         <div className="container">
-          <Score scoreRight={score} />
+          <ScorePanel scoreRight={score} />
           <div className="container-inner">
             <div id="sweeper" />
           </div>
@@ -159,69 +161,6 @@ export const App = ({ config }) => {
     </div>
   )
 }
-
-const Score = ({ scoreLeft, scoreRight = 0 }) => (
-  <div className="score-area">
-    <ScoreText score={scoreLeft} />
-    <button className="face-button">
-      <Face value={0} />
-    </button>
-    <ScoreText score={scoreRight} />
-  </div>
-)
-
-const ScoreText = ({ score = '' }) => (
-  <div className="text">
-    {score
-      .toString()
-      .padStart(10, '-')
-      .split('')
-      .map((value, i) => (
-        <ScoreNumber key={`${value}-${i}`} value={+value} />
-      ))}
-  </div>
-)
-
-const ScoreNumber = ({ value }) => (
-  <Sprite frameWidth={13} src="./assets/images/numbers.png" frame={value + 1} />
-)
-
-const Face = ({ value }) => (
-  <Sprite frameWidth={17} src="./assets/images/faces.png" frame={value} />
-)
-
-const Sprite = ({ src, frameWidth, frame }) => (
-  <div
-    style={{
-      overflow: 'hidden',
-      width: frameWidth,
-      display: 'flex',
-      alignItems: 'center',
-    }}
-  >
-    <img
-      src={src}
-      style={{ position: 'relative', left: -frameWidth * frame }}
-    />
-  </div>
-)
-
-const Window = ({ active, title, onClose, children, className = '' }) => (
-  <div class={`window ${active ? '' : 'hidden'} ${className}`}>
-    <div class="title-bar">
-      <div class="title-bar-text">
-        <img src="./assets/images/icon.png" />
-        {title}
-      </div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize"></button>
-        <button aria-label="Maximize"></button>
-        <button onClick={onClose} aria-label="Close"></button>
-      </div>
-    </div>
-    {children}
-  </div>
-)
 
 const createRoom = async (name) => {
   const roomName = prompt('Room name?')
