@@ -24,7 +24,7 @@ export class MinesweeperRoom extends Room<RoomState> {
       if (action === 'Move') {
         this.broadcast(
           'Move',
-          `Move:${player.color}:${_data.x}:${_data.y}:${_data.shouldMark}`,
+          `Move:${player.index}:${_data.x}:${_data.y}:${_data.shouldMark}`,
         )
       }
     })

@@ -1,6 +1,7 @@
 import { throttle } from 'lodash'
 import { CameraService } from '../services/cameraService'
 import { TileService } from '../services/tileService'
+import { COLORS } from './UI'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -32,10 +33,11 @@ export default class extends Phaser.Scene {
         window.room = null
       })
       room.onMessage('Move', (message) => {
-        const [_, color, x, y, shouldMark] = message.split(':')
+        const [_, index, x, y, shouldMark] = message.split(':')
         const tile = this.tileService.tiles.find(
           (t) => t._x === +x && t._y === +y,
         )
+        const color = COLORS[index]
         const mark = shouldMark === 'true'
         const value = this.tileService.sweeper.getScore(+x, +y, mark)
         this.tileService.showScoreText(tile.x, tile.y, value, color)

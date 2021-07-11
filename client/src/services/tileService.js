@@ -1,4 +1,5 @@
 import { Minesweeper, COORDS } from '../../../lib/minesweeper'
+import { COLORS } from '../scenes/UI'
 
 export class TileService {
   constructor(scene) {
@@ -94,7 +95,7 @@ export class TileService {
           )
           tile.setTint(
             Phaser.Display.Color.HexStringToColor(
-              matchingPlayer?.color || '#fff',
+              COLORS[matchingPlayer?.index] || '#fff',
             ).color,
           )
         } else {
@@ -155,7 +156,8 @@ export class TileService {
           .setOrigin(0)
           .setDepth(11)
         cursor.setTint(
-          Phaser.Display.Color.HexStringToColor(player?.color || '#fff').color,
+          Phaser.Display.Color.HexStringToColor(COLORS[player?.index] || '#fff')
+            .color,
         )
         this.cursors[player.id] = cursor
       }

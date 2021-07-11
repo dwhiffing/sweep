@@ -30,8 +30,9 @@ export default class extends Phaser.Scene {
         if (this.player) {
           this.registry.set('score', this.player.score)
           this.cursor.setTint(
-            Phaser.Display.Color.HexStringToColor(this.player?.color || '#fff')
-              .color,
+            Phaser.Display.Color.HexStringToColor(
+              COLORS[this.player?.index] || '#fff',
+            ).color,
           )
         }
       }
@@ -41,3 +42,16 @@ export default class extends Phaser.Scene {
     }
   }
 }
+
+export const COLORS = [
+  '#ffffff',
+  '#4a46fb',
+  '#3ad6d3',
+  '#11c043',
+  '#fdf148',
+  '#ff8c00',
+  '#df2424',
+  '#fa6c84',
+  '#a802bb',
+  '#914433',
+]
