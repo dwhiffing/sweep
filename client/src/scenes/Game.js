@@ -1,3 +1,4 @@
+import { throttle } from 'lodash'
 import { CameraService } from '../services/cameraService'
 import { TileService } from '../services/tileService'
 
@@ -17,6 +18,14 @@ export default class extends Phaser.Scene {
     this.tileService.init()
 
     if (window.room) {
+      const sendCursorEvent = throttle(
+        (x, y) => window.room.send('Cursor', { x, y }),
+        250,
+      )
+      this.input.on('pointermove', (p) => {
+        const { scrollX, scrollY } = this.cameras.main
+        sendCursorEvent(scrollX + p.x, scrollY + p.y)
+      })
       const room = window.room
       const sync = (changes) => this.tileService.sync(changes)
 

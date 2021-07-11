@@ -19,6 +19,9 @@ export class Player extends Schema {
   @type([Coord])
   tiles = new ArraySchema<Coord>()
 
+  @type(Coord)
+  cursor = new Coord({ x: 0, y: 0 })
+
   @type('number')
   score = 0
 
@@ -39,5 +42,9 @@ export class Player extends Schema {
 
   addTile = (x, y) => {
     this.tiles.push(new Coord({ x, y }))
+  }
+
+  moveCursor = (x, y) => {
+    this.cursor = new Coord({ x, y })
   }
 }

@@ -13,6 +13,8 @@ export class TileService {
     this.chunks = this.loadChunks()
     this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
     this.textGroup = this.loadText()
+    this.cursorGroup = this.loadCursors()
+
     this.update(true)
   }
 
@@ -20,26 +22,7 @@ export class TileService {
     this.sweeper.state = state.tiles
     this.players = state.players
     this.update(true)
-  }
-
-  loadText = () => {
-    const group = this.scene.add.group({
-      createCallback: (text) =>
-        text
-          .setFontFamily('Arial')
-          .setFontSize(24)
-          .setOrigin(0)
-          .setStroke('#000', 4),
-    })
-    group.createMultiple({
-      classType: Phaser.GameObjects.Text,
-      key: ' ',
-      visible: false,
-      active: false,
-      repeat: 20,
-      max: 20,
-    })
-    return group
+    this.updateCursors(state)
   }
 
   loadChunks = () =>
@@ -111,6 +94,65 @@ export class TileService {
         } else {
           tile.clearTint()
         }
+      })
+    })
+  }
+
+  loadText = () => {
+    const group = this.scene.add.group({
+      createCallback: (text) =>
+        text
+          .setFontFamily('Arial')
+          .setFontSize(24)
+          .setOrigin(0)
+          .setStroke('#000', 4),
+    })
+    group.createMultiple({
+      classType: Phaser.GameObjects.Text,
+      key: ' ',
+      visible: false,
+      active: false,
+      repeat: 20,
+      max: 20,
+    })
+    return group
+  }
+
+  loadCursors = () => {
+    this.cursors = {}
+    this.cursorTweens = {}
+    const group = this.scene.add.group()
+    group.createMultiple({
+      key: 'cursor',
+      visible: false,
+      active: false,
+      repeat: 9,
+      max: 9,
+    })
+    return group
+  }
+
+  updateCursors = (state) => {
+    if (!this.uiScene.player?.id) return
+    const otherPlayers = state.players.filter(
+      (p) => p.id !== this.uiScene.player?.id,
+    )
+    otherPlayers.forEach((player) => {
+      let cursor = this.cursors[player.id]
+      if (!cursor) {
+        cursor = this.cursorGroup.get()
+        cursor.setVisible(true).setActive(true).setScale(2).setOrigin(0)
+        cursor.setTint(
+          Phaser.Display.Color.HexStringToColor(player?.color).color,
+        )
+        this.cursors[player.id] = cursor
+      }
+      this.cursorTweens[player.id]?.remove()
+      this.cursorTweens[player.id] = this.scene.tweens.add({
+        targets: cursor,
+        x: player.cursor.x,
+        y: player.cursor.y,
+        duration: 250,
       })
     })
   }

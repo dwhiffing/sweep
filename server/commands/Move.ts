@@ -27,3 +27,13 @@ export class MoveCommand extends Command<
     this.state.tiles = new MapSchema(this.state.minesweeper.state)
   }
 }
+
+export class CursorCommand extends Command<
+  RoomState,
+  { playerId; x: any; y: any }
+> {
+  execute({ playerId, x, y }) {
+    const player = this.state.players.find((p) => p.id === playerId)
+    player.moveCursor(x, y)
+  }
+}
