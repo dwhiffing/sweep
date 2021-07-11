@@ -174,6 +174,8 @@ export class TileService {
     if (window.room) {
       window.room.send('Move', { x, y, shouldMark })
       return
+    } else {
+      this.scene.registry.set('score', (s) => Math.max(0, s + value))
     }
 
     if (shouldMark) {
@@ -195,7 +197,7 @@ export class TileService {
       .setActive(true)
       .setVisible(true)
       .setText(`${value > 0 ? '+' : '-'}${Math.abs(value)}`)
-      .setColor(this.uiScene.player.color)
+      .setColor(this.uiScene.player?.color || '#ffffff')
     this.scene.tweens
       .createTimeline()
       .add({ targets: text, y: y - 10, duration: 800 })
