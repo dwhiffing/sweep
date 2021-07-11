@@ -15,6 +15,10 @@ export default class extends Phaser.Scene {
 
   create() {
     this.tileService.init()
+    this.cursorText = this.add.text(0, 0, '0,0').setScrollFactor(0)
+    this.input.on('pointermove', (p) => {
+      this.cursorText.setPosition(p.x + 10, p.y + 10)
+    })
 
     if (window.room) {
       const room = window.room

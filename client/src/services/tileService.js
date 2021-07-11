@@ -32,6 +32,7 @@ export class TileService {
           tile
             .setInteractive()
             .on('pointerover', (p) => {
+              this.scene.cursorText.setText(`${tile._x},${tile._y}`)
               if (!this.isRevealable(tile)) return
               if (p.leftButtonDown()) tile.setFrame(0)
             })
