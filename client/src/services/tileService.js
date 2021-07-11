@@ -4,24 +4,20 @@ export class TileService {
   constructor(scene) {
     this.scene = scene
     this.sweeper = new Minesweeper()
+    this.players = []
   }
 
   init = () => {
     this.lastCoords = {}
     this.chunks = this.loadChunks()
     this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
-    this.update()
+    this.update(true)
   }
 
   sync = (state) => {
     this.sweeper.state = state.tiles
-    this.tiles.forEach((sprite) => {
-      sprite.setFrame(this.sweeper.getTileState(sprite._x, sprite._y))
-      const matchingPlayer = state.players.find((p) =>
-        p.tiles.find(({ x, y }) => sprite._x === x && sprite._y === y),
-      )
-      if (matchingPlayer) sprite.setTint(matchingPlayer.color)
-    })
+    this.players = state.players
+    this.update(true)
   }
 
   loadChunks = () =>
@@ -58,10 +54,15 @@ export class TileService {
       return { x, y, tiles }
     })
 
-  update = () => {
+  update = (force) => {
     const { scrollX, scrollY } = this.scene.cameras.main
     const coords = getChunkCoords(scrollX, scrollY)
-    if (this.lastCoords.x === coords.x && this.lastCoords.y === coords.y) return
+    if (
+      !force &&
+      this.lastCoords.x === coords.x &&
+      this.lastCoords.y === coords.y
+    )
+      return
     this.lastCoords = coords
 
     this.chunks.forEach((chunk, i) => {
@@ -76,7 +77,16 @@ export class TileService {
         tile._y = tile._cY + chunk.y * CHUNK_SIZE
         tile.x = tile._x * TILE_SIZE + xoffset
         tile.y = tile._y * TILE_SIZE + yoffset
-        tile.setFrame(this.sweeper.getTileState(tile._x, tile._y))
+        const frame = this.sweeper.getTileState(tile._x, tile._y)
+        tile.setFrame(frame)
+        if (frame === 10 || frame === 11) {
+          const matchingPlayer = this.players.find((p) =>
+            p.tiles.find(({ x, y }) => tile._x === x && tile._y === y),
+          )
+          tile.setTint(matchingPlayer?.color)
+        } else {
+          tile.clearTint()
+        }
       })
     })
   }
