@@ -10,13 +10,18 @@ export class TileService {
     this.lastCoords = {}
     this.chunks = this.loadChunks()
     this.tiles = this.chunks.map((c) => c.tiles.getChildren()).flat()
+    this.update()
   }
 
   sync = (state) => {
-    this.sweeper.state = state
-    this.tiles.forEach((sprite) =>
-      sprite.setFrame(this.sweeper.getTileState(sprite._x, sprite._y)),
-    )
+    this.sweeper.state = state.tiles
+    this.tiles.forEach((sprite) => {
+      sprite.setFrame(this.sweeper.getTileState(sprite._x, sprite._y))
+      const matchingPlayer = state.players.find((p) =>
+        p.tiles.find(({ x, y }) => sprite._x === x && sprite._y === y),
+      )
+      if (matchingPlayer) sprite.setTint(matchingPlayer.color)
+    })
   }
 
   loadChunks = () =>

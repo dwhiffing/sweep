@@ -1,5 +1,9 @@
-import { type, Schema } from '@colyseus/schema'
+import { type, ArraySchema, Schema } from '@colyseus/schema'
 
+class Coord extends Schema {
+  @type('number') x: number
+  @type('number') y: number
+}
 export class Player extends Schema {
   reconnection: any
 
@@ -12,8 +16,14 @@ export class Player extends Schema {
   @type('boolean')
   connected = true
 
+  @type([Coord])
+  tiles = new ArraySchema<Coord>()
+
   @type('number')
   score = 0
+
+  @type('number')
+  color = 0xff0000
 
   @type('number')
   remainingConnectionTime = 0
@@ -25,5 +35,9 @@ export class Player extends Schema {
   addScore = (score) => {
     this.score += score
     if (this.score < 0) this.score = 0
+  }
+
+  addTile = (x, y) => {
+    this.tiles.push(new Coord({ x, y }))
   }
 }

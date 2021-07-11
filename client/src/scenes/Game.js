@@ -23,7 +23,7 @@ export default class extends Phaser.Scene {
     if (window.room) {
       const room = window.room
       const sync = (changes) => {
-        this.tileService.sync(changes.tiles)
+        this.tileService.sync(changes)
         const playerId = localStorage.getItem(room.id)
         const player = changes.players.find((p) => p.id === playerId)
         player && this.registry.set('score', player.score)
