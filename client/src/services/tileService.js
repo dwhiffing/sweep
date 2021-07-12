@@ -45,20 +45,29 @@ export class TileService {
             .on('pointerover', (p) => {
               this.uiScene.cursorText.setText(`${tile._x},${tile._y}`)
               if (!this.isRevealable(tile)) return
-              if (p.leftButtonDown()) tile.setFrame(0)
+              if (p.leftButtonDown()) {
+                tile._pressed = true
+                tile.setFrame(0)
+              }
             })
             .on('pointerdown', (p) => {
               if (!this.isRevealable(tile) || p.rightButtonDown()) return
               tile.setFrame(0)
+              tile._pressed = true
               this.scene.registry.set('face', 1)
             })
             .on('pointerout', (p) => {
               if (!this.isRevealable(tile)) return
-              if (p.leftButtonDown()) tile.setFrame(9)
+              if (p.leftButtonDown()) {
+                tile._pressed = false
+
+                tile.setFrame(9)
+              }
             })
             .on('pointerup', (p) => {
               if (!this.isRevealable(tile) && !p.rightButtonReleased()) return
               this.scene.registry.set('face', 0)
+              tile._pressed = false
               this.onClickTile(tile, p.rightButtonReleased())
             })
         }
@@ -90,7 +99,7 @@ export class TileService {
         tile.x = tile._x * TILE_SIZE + xoffset
         tile.y = tile._y * TILE_SIZE + yoffset
         const frame = this.sweeper.getTileState(tile._x, tile._y)
-        tile.setFrame(frame)
+        if (!tile._pressed) tile.setFrame(frame)
         if (frame === 10 || frame === 11) {
           const matchingPlayer = this.players.find((p) =>
             p.tiles.find(({ x, y }) => tile._x === x && tile._y === y),
