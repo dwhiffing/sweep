@@ -1,10 +1,10 @@
 import { h } from 'preact'
 
-export const ScorePanel = ({ scoreLeft, scoreRight = 0 }) => (
+export const ScorePanel = ({ face = 0, scoreLeft, scoreRight = 0 }) => (
   <div className="score-area">
     <ScoreText score={scoreLeft} />
     <button className="face-button">
-      <Face value={0} />
+      <Face value={face} />
     </button>
     <ScoreText score={scoreRight} />
   </div>

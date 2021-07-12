@@ -13,6 +13,7 @@ export default class extends Phaser.Scene {
     this.cameraService = new CameraService(this)
     this.tileService = new TileService(this)
     this.registry.set('score', 0)
+    this.registry.set('face', 0)
   }
 
   create() {

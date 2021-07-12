@@ -50,6 +50,7 @@ export class TileService {
             .on('pointerdown', (p) => {
               if (!this.isRevealable(tile) || p.rightButtonDown()) return
               tile.setFrame(0)
+              this.scene.registry.set('face', 1)
             })
             .on('pointerout', (p) => {
               if (!this.isRevealable(tile)) return
@@ -57,6 +58,7 @@ export class TileService {
             })
             .on('pointerup', (p) => {
               if (!this.isRevealable(tile) && !p.rightButtonReleased()) return
+              this.scene.registry.set('face', 0)
               this.onClickTile(tile, p.rightButtonReleased())
             })
         }
@@ -181,13 +183,15 @@ export class TileService {
       this.scene.cameras.main.shake(250, 0.025)
 
     const { _x: x, _y: y } = tile
+    const value = this.sweeper.getScore(x, y, shouldMark)
+
+    this.scene.registry.set('face', value > 0 ? 2 : 3)
 
     if (window.room) {
       window.room.send('Move', { x, y, shouldMark })
       return
     }
 
-    const value = this.sweeper.getScore(x, y, shouldMark)
     this.showScoreText(tile.x, tile.y, value)
     this.scene.registry.set('score', (s) => Math.max(0, s + value))
 

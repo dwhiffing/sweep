@@ -16,6 +16,7 @@ export const App = ({ config }) => {
   const defaultName = localStorage.getItem('name')
   const [name, setName] = useState(defaultName || 'Player')
   const [score, setScore] = useState(0)
+  const [face, setFace] = useState(0)
 
   const onCreateRoom = (name) => {
     createRoom(name)
@@ -58,6 +59,7 @@ export const App = ({ config }) => {
       gameRef.current = game
       game.registry.events.on('changedata', (_, key, value) => {
         if (key === 'score') setScore(value)
+        if (key === 'face') setFace(value)
       })
     }
   }, [game])
@@ -152,7 +154,7 @@ export const App = ({ config }) => {
 
       <Window title="Minesweeper" active={game} onClose={closeGame}>
         <div className="container">
-          <ScorePanel scoreRight={score} />
+          <ScorePanel face={face} scoreRight={score} />
           <div className="container-inner">
             <div id="sweeper" />
           </div>
