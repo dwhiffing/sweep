@@ -177,6 +177,7 @@
       border-bottom-color: #efefef;
       border-right-color: #efefef;
       box-sizing: border-box;
+      position: relative;
     }
 
     .score-area {
@@ -221,6 +222,32 @@
 
     canvas {
       cursor: none;
+    }
+
+    .scores {
+      position: absolute;
+      right: 0;
+      background-color: #000000aa;
+      color: white;
+      padding: 10px 10px 4px 10px;
+      pointer-events: none;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 8px;
+      margin-right: 8px;
+    }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .score-row p {
+      margin: 0;
     }
   </style>
 </head>
