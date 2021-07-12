@@ -46,28 +46,23 @@ export class TileService {
               this.uiScene.cursorText.setText(`${tile._x},${tile._y}`)
               if (!this.isRevealable(tile)) return
               if (p.leftButtonDown()) {
-                tile._pressed = true
                 tile.setFrame(0)
               }
             })
             .on('pointerdown', (p) => {
               if (!this.isRevealable(tile) || p.rightButtonDown()) return
               tile.setFrame(0)
-              tile._pressed = true
               this.scene.registry.set('face', 1)
             })
             .on('pointerout', (p) => {
               if (!this.isRevealable(tile)) return
               if (p.leftButtonDown()) {
-                tile._pressed = false
-
                 tile.setFrame(9)
               }
             })
             .on('pointerup', (p) => {
               if (!this.isRevealable(tile) && !p.rightButtonReleased()) return
               this.scene.registry.set('face', 0)
-              tile._pressed = false
               this.onClickTile(tile, p.rightButtonReleased())
             })
         }
@@ -99,7 +94,7 @@ export class TileService {
         tile.x = tile._x * TILE_SIZE + xoffset
         tile.y = tile._y * TILE_SIZE + yoffset
         const frame = this.sweeper.getTileState(tile._x, tile._y)
-        if (!tile._pressed) tile.setFrame(frame)
+        tile.setFrame(frame)
         if (frame === 10 || frame === 11) {
           const matchingPlayer = this.players.find((p) =>
             p.tiles.find(({ x, y }) => tile._x === x && tile._y === y),
@@ -150,36 +145,31 @@ export class TileService {
     return group
   }
 
-  updateCursors = (state) => {
+  updateCursor = (playerId, index, x, y) => {
     if (!this.uiScene.player?.id) return
-    const otherPlayers = state.players.filter(
-      (p) => p.id !== this.uiScene.player?.id,
-    )
+
     this.cursorGroup.getChildren().forEach((c) => c.setVisible(false))
-    otherPlayers.forEach((player) => {
-      let cursor = this.cursors[player.id]
-      if (!cursor) {
-        cursor = this.cursorGroup.get()
-        cursor
-          .setVisible(true)
-          .setActive(true)
-          .setScale(2)
-          .setOrigin(0)
-          .setDepth(11)
-        cursor.setTint(
-          Phaser.Display.Color.HexStringToColor(COLORS[player?.index] || '#fff')
-            .color,
-        )
-        this.cursors[player.id] = cursor
-      }
-      cursor.setVisible(true)
-      this.cursorTweens[player.id]?.remove()
-      this.cursorTweens[player.id] = this.scene.tweens.add({
-        targets: cursor,
-        x: player.cursor.x,
-        y: player.cursor.y,
-        duration: 250,
-      })
+    let cursor = this.cursors[playerId]
+    if (!cursor) {
+      cursor = this.cursorGroup.get()
+      cursor
+        .setVisible(true)
+        .setActive(true)
+        .setScale(2)
+        .setOrigin(0, 0)
+        .setDepth(11)
+      cursor.setTint(
+        Phaser.Display.Color.HexStringToColor(COLORS[index] || '#fff').color,
+      )
+      this.cursors[playerId] = cursor
+    }
+    cursor.setVisible(true)
+    this.cursorTweens[playerId]?.remove()
+    this.cursorTweens[playerId] = this.scene.tweens.add({
+      targets: cursor,
+      x: x,
+      y: y,
+      duration: 250,
     })
   }
 
@@ -213,6 +203,12 @@ export class TileService {
     this.tiles.forEach((sprite) =>
       sprite.setFrame(this.sweeper.getTileState(sprite._x, sprite._y)),
     )
+  }
+
+  onMove = (index, x, y, mark) => {
+    const tile = this.tiles.find((t) => t._x === x && t._y === y)
+    const value = this.sweeper.getScore(x, y, mark)
+    this.showScoreText(tile.x, tile.y, value, COLORS[index])
   }
 
   showScoreText = (x, y, value, color = '#ffffff') => {

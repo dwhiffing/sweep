@@ -1,7 +1,6 @@
 import { throttle } from 'lodash'
 import { CameraService } from '../services/cameraService'
 import { TileService } from '../services/tileService'
-import { COLORS } from './UI'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -22,10 +21,9 @@ export default class extends Phaser.Scene {
     if (window.room) {
       const room = window.room
       const cursorEvent = throttle((coord) => room.send('Cursor', coord), 250)
-      this.input.on('pointermove', (p) => {
-        const { scrollX, scrollY } = this.cameras.main
-        cursorEvent({ x: scrollX + p.x, y: scrollY + p.y })
-      })
+      this.input.on('pointermove', (p) =>
+        cursorEvent({ x: p.worldX, y: p.worldY }),
+      )
 
       this.tileService.sync(room.state.toJSON())
       room.onStateChange((state) => this.tileService.sync(state.toJSON()))
@@ -34,14 +32,12 @@ export default class extends Phaser.Scene {
         window.room = null
       })
       room.onMessage('Move', (message) => {
-        const [_, index, x, y, shouldMark] = message.split(':')
-        const tile = this.tileService.tiles.find(
-          (t) => t._x === +x && t._y === +y,
-        )
-        const color = COLORS[index]
-        const mark = shouldMark === 'true'
-        const value = this.tileService.sweeper.getScore(+x, +y, mark)
-        this.tileService.showScoreText(tile.x, tile.y, value, color)
+        const [index, x, y, mark] = message.split(':')
+        this.tileService.onMove(index, +x, +y, mark === 'true')
+      })
+      room.onMessage('Cursor', (message) => {
+        const [id, index, x, y] = message.split(':')
+        this.tileService.updateCursor(id, +index, +x, +y)
       })
     }
   }

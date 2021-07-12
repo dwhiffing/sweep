@@ -13,18 +13,26 @@ export class MinesweeperRoom extends Room<RoomState> {
 
     this.onMessage('*', (client, action, _data = {}) => {
       const Command = Commands[action + 'Command']
-      if (!Command) return
-      this.dispatcher.dispatch(new Command(), {
-        ..._data,
-        broadcast: this.broadcast.bind(this),
-        playerId: _data.playerId || client.sessionId,
-      })
+      if (Command) {
+        this.dispatcher.dispatch(new Command(), {
+          ..._data,
+          broadcast: this.broadcast.bind(this),
+          playerId: _data.playerId || client.sessionId,
+        })
+      }
+
       const player = this.state.players.find((p) => p.id === client.sessionId)
 
       if (action === 'Move') {
         this.broadcast(
           'Move',
-          `Move:${player.index}:${_data.x}:${_data.y}:${_data.shouldMark}`,
+          `${player.index}:${_data.x}:${_data.y}:${_data.shouldMark}`,
+        )
+      } else if (action === 'Cursor') {
+        this.broadcast(
+          'Cursor',
+          `${player.id}:${player.index}:${_data.x}:${_data.y}`,
+          { except: client },
         )
       }
     })
