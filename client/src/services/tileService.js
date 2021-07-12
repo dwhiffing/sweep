@@ -27,7 +27,14 @@ export class TileService {
     this.sweeper.state = state.tiles
     this.players = state.players
     this.update(true)
-    this.updateCursors(state)
+    this.scene.registry.set(
+      'scores',
+      this.players.map((p) => ({
+        name: p.name,
+        score: p.score,
+        color: COLORS[p.index],
+      })),
+    )
   }
 
   loadChunks = () =>

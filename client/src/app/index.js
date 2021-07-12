@@ -17,6 +17,7 @@ export const App = ({ config }) => {
   const [name, setName] = useState(defaultName || 'Player')
   const [score, setScore] = useState(0)
   const [face, setFace] = useState(0)
+  const [scores, setScores] = useState([])
 
   const onCreateRoom = (name) => {
     createRoom(name)
@@ -59,6 +60,7 @@ export const App = ({ config }) => {
       gameRef.current = game
       game.registry.events.on('changedata', (_, key, value) => {
         if (key === 'score') setScore(value)
+        if (key === 'scores') setScores(value)
         if (key === 'face') setFace(value)
       })
     }
@@ -156,6 +158,18 @@ export const App = ({ config }) => {
         <div className="container">
           <ScorePanel face={face} scoreRight={score} />
           <div className="container-inner">
+            {scores.length > 0 && (
+              <div className="scores">
+                {scores.map((score) => (
+                  <div className="score-row">
+                    <div className="dot" style={{ background: score.color }} />
+                    <p>
+                      {score.name}: {score.score}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
             <div id="sweeper" />
           </div>
         </div>
