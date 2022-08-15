@@ -1,0 +1,10 @@
+Add arrow controls
+scroll when near edge
+sort scores
+fix cursor sprites when more than 2
+fix flood fill
+spacebar/left+right click to reveal all around tile if flag count is satisfied
+difficulty levels when creating game
+duplicate player colors sometimes appear?
+combo system for scoring
+click and drag to move camera
