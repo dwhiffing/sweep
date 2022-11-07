@@ -6,7 +6,7 @@ import { App } from './app'
 
 window.colyseus = new Client(
   process.env.NODE_ENV === 'production'
-    ? 'wss://daniel-minesweeper.herokuapp.com'
+    ? 'wss://web-production-b05a.up.railway.app'
     : 'ws://localhost:3553',
 )
 
